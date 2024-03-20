@@ -5,9 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Grafkom-tall</title>
   </head>
-  <body>
+  <body style="width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h1>Grafkom-tall</h1>
     <canvas id="canvas" width="500" height="500"></canvas>
+    <h2 style=" margin-top: 20px;">Model</h2>
+    <div style="display: flex; flex-direction: row; gap: 5px;">
+      <button id="line-button">Line</button>
+      <button id="square-button">Square</button>
+      <button id="rectangle-button">Rectangle</button>
+      <button id="polygon-button">Polygon</button>
+    </div>
   </body>
 
-  <script src="scripts/webgl-sample.js"></script>
+  <script type="module" src="src/main.ts"></script>
 </html>
