@@ -1,4 +1,4 @@
-export class WebGLWindow{
+export class WebGlWindow {
   public canvas: HTMLCanvasElement;
   public gl: WebGLRenderingContext;
 
