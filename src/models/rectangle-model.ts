@@ -7,6 +7,11 @@ export class RectangleModel extends BaseModel {
     }
         
     draw(): void {
+        this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, 4);
+    }
+    
+    init(): void {
+        // Ini harusnya ntar jadi parameter atau attribut sesuain sama kelasnya, aing testing doang di sini
         const positionData = new BufferInfo(
             4,
             [
@@ -30,10 +35,6 @@ export class RectangleModel extends BaseModel {
         this.setPosition(positionData);
         this.setColor(colorData);
 
-        this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, 4);
-    }
-
-    init(): void {
         this.gl.useProgram(this.program);
     }
 }
