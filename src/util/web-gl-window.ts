@@ -4,7 +4,7 @@ export class WebGlWindow {
 
   constructor(id: string){
     this.canvas = document.getElementById(id) as HTMLCanvasElement;
-    this.gl = this.canvas.getContext("webgl2") as WebGL2RenderingContext;
+    this.gl = this.canvas.getContext("webgl") as WebGL2RenderingContext;
     if(!this.gl) alert("No webgl support");
   }
 }
