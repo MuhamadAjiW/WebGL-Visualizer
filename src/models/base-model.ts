@@ -66,8 +66,11 @@ export abstract class BaseModel {
 
         let success = this.gl.getProgramParameter(program, this.gl.LINK_STATUS);
         if (!success){
+            const err: string = `Shader compilation failed: ${this.gl.getProgramInfoLog(program)}`;
+
+            console.log(err);
             this.gl.deleteProgram(program);
-            throw this.gl.getProgramInfoLog(program);
+            throw err;
         }
 
         return program;
