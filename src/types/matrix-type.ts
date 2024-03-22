@@ -1,0 +1,1 @@
+export type squareMatrix3 = [number, number, number, number, number, number, number, number, number];

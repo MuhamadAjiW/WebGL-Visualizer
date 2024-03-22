@@ -1,5 +1,6 @@
 import { BufferInfo } from "../types/buffer-info";
 import { BaseModel } from "./base-model";
+import { m3 } from "../util/m3";
 
 export class RectangleModel extends BaseModel {
     constructor(gl : WebGLRenderingContext) {
@@ -31,8 +32,10 @@ export class RectangleModel extends BaseModel {
                 0.5, 0.5, 0.5, 1
             ]
         )
+        const rotationMatrix = m3.rotation(Math.PI / 4);
     
         this.setPosition(positionData);
+        this.setMatrix(rotationMatrix);
         this.setColor(colorData);
 
         this.gl.useProgram(this.program);

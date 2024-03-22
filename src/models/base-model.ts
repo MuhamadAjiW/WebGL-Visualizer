@@ -1,4 +1,5 @@
 import { BufferInfo } from "../types/buffer-info";
+import { squareMatrix3 } from "../types/matrix-type";
 
 export abstract class BaseModel {
     protected gl: WebGLRenderingContext;
@@ -9,20 +10,23 @@ export abstract class BaseModel {
     protected colorBuffer: WebGLBuffer;
 
     constructor(gl: WebGLRenderingContext) {
-        // vertPosition is 4 dimensional, x, y, z, p
-        const vertexSource = `
-            attribute vec4 vertPosition;
+        // a_position is 4 dimensional, x, y, z, p
+        const vertexSource = /*glsl*/`
+            attribute vec4 a_position;
             attribute vec4 vertColor;
             varying vec4 fragColor;
+            uniform mat3 u_matrix;
 
             void main() {
-                gl_Position = vertPosition;
+                // Multiply the position by the matrix. scale to 2D first because matrix is 3D
+                vec2 position = (u_matrix * vec3(a_position.xy, 1)).xy;
+                gl_Position = vec4(position, 0, 1);
                 fragColor = vertColor;
             }
         `;
 
         // Color is RGBA, red, green, blue, alpha (transparency)
-        const fragmentSource = `
+        const fragmentSource = /*glsl*/`
             precision mediump float;
             varying vec4 fragColor;
 
@@ -80,7 +84,7 @@ export abstract class BaseModel {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, buffer.data, this.gl.STATIC_DRAW)
         
-        var positionAttribLocation = this.gl.getAttribLocation(this.program, 'vertPosition');
+        var positionAttribLocation = this.gl.getAttribLocation(this.program, 'a_position');
         this.gl.vertexAttribPointer(positionAttribLocation, buffer.len, this.gl.FLOAT, false, 0, 0);
         this.gl.enableVertexAttribArray(positionAttribLocation);
     }
@@ -92,6 +96,12 @@ export abstract class BaseModel {
         var colorAttribLocation = this.gl.getAttribLocation(this.program, 'vertColor');
         this.gl.vertexAttribPointer(colorAttribLocation, buffer.len, this.gl.FLOAT, false, 0, 0);
         this.gl.enableVertexAttribArray(colorAttribLocation);
+    }
+
+    protected setMatrix(matrix: squareMatrix3): void {
+        this.gl.useProgram(this.program);
+        const matrixUniformLocation = this.gl.getUniformLocation(this.program, 'u_matrix');
+        this.gl.uniformMatrix3fv(matrixUniformLocation, false, matrix);
     }
 
     protected clear(): void{
