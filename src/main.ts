@@ -2,6 +2,7 @@ import { WebGlWindow } from "./util/web-gl-window.ts";
 import { ModelState } from "./types/enum/model-state.ts";
 import { RectangleModel } from "./models/rectangle-model.ts";
 import { BaseModel } from "./models/base-model.ts";
+import { SquareModel } from "./models/square-model.ts";
 
 var curr_state = ModelState.LINE
 
@@ -24,9 +25,13 @@ square_btn.addEventListener("click", () => {
     curr_state = ModelState.SQUARE
     console.log(curr_state)
 
-    model = new RectangleModel(glWin.gl);
+    const model = new RectangleModel(glWin.gl);
     model.init()
     model.draw()
+    const model2 = new SquareModel(glWin.gl);
+    model2.init()
+    model2.draw()
+
 })
 
 rectangle_btn.addEventListener("click", () => {
