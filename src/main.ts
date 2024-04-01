@@ -3,6 +3,7 @@ import { ModelState } from "./types/enum/model-state.ts";
 import { RectangleModel } from "./models/rectangle-model.ts";
 import { BaseModel } from "./models/base-model.ts";
 import { SquareModel } from "./models/square-model.ts";
+import { BaseShape } from "./models/base-shape.ts";
 
 var curr_state = ModelState.LINE
 
@@ -19,6 +20,10 @@ let model: BaseModel;
 line_btn.addEventListener("click", () => {
     curr_state = ModelState.LINE
     console.log(curr_state);
+
+    const baseShape = new BaseShape();
+    glWin.draw([baseShape]);
+    console.log("drawn")
 })
 
 square_btn.addEventListener("click", () => {

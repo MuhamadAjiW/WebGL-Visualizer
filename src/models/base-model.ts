@@ -240,9 +240,9 @@ export abstract class BaseModel {
 
     protected setMatrix(matrix: squareMatrix3): void {
         this.gl.useProgram(this.program);
-        const matrixUniformLocation = this.gl.getUniformLocation(this.program, "u_matrix");
+        // const matrixUniformLocation = this.gl.getUniformLocation(this.program, "u_matrix");
         this.setUniforms(this.uniformSetters, { u_matrix: matrix });
-        this.gl.uniformMatrix3fv(matrixUniformLocation, false, matrix);
+        // this.gl.uniformMatrix3fv(matrixUniformLocation, false, matrix);
     }
 
     protected clear(): void {
