@@ -1,7 +1,7 @@
 import vertexShaderSource from "../shaders/vertex-shader-2d.vert?raw";
 import fragmentShaderSource from "../shaders/fragment-shader-2d.frag?raw";
 import { BufferInfo } from "../types/buffer-info";
-import { BaseShape } from "../models/base-shape";
+import { BaseModel } from "../models/base-model";
 
 export class WebGlWindow {
     public canvas: HTMLCanvasElement;
@@ -14,6 +14,7 @@ export class WebGlWindow {
     protected positionBuffer: WebGLBuffer;
     protected colorBuffer: WebGLBuffer;
     protected uniformSetters: UniformSetters;
+    
 
     constructor(id: string) {
         this.canvas = document.getElementById(id) as HTMLCanvasElement;
@@ -34,8 +35,8 @@ export class WebGlWindow {
         this.colorBuffer = this.gl.createBuffer() as WebGLBuffer;
     }
 
-    public draw(baseShapes: BaseShape[]): void {
-        baseShapes.forEach((baseShape: BaseShape) => {
+    public draw(baseShapes: BaseModel[]): void {
+        baseShapes.forEach((baseShape: BaseModel) => {
             this.gl.useProgram(this.program);
             this.setUniforms(this.uniformSetters, baseShape.uniforms);
             this.setPosition(baseShape.positionBuffer);

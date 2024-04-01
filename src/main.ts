@@ -1,9 +1,7 @@
-import { WebGlWindow } from "./util/web-gl-window.ts";
-import { ModelState } from "./types/enum/model-state.ts";
-import { RectangleModel } from "./models/rectangle-model.ts";
 import { BaseModel } from "./models/base-model.ts";
-import { SquareModel } from "./models/square-model.ts";
-import { BaseShape } from "./models/base-shape.ts";
+import { ModelState } from "./types/enum/model-state.ts";
+import { m3 } from "./util/m3.ts";
+import { WebGlWindow } from "./util/web-gl-window.ts";
 
 var curr_state = ModelState.LINE
 
@@ -15,28 +13,23 @@ const rectangle_btn = document.getElementById("rectangle-button") as HTMLButtonE
 const polygon_btn = document.getElementById("polygon-button") as HTMLButtonElement
 const glWin = new WebGlWindow("canvas");
 
-let model: BaseModel;
-
 line_btn.addEventListener("click", () => {
     curr_state = ModelState.LINE
     console.log(curr_state);
 
-    const baseShape = new BaseShape();
-    glWin.draw([baseShape]);
+    const baseShape = new BaseModel();
+    
+    const line = new BaseModel();
+    line.uniforms.u_matrix = m3.rotation(Math.PI / 4);
+    
+    glWin.draw([baseShape, line]);
+
     console.log("drawn")
 })
 
 square_btn.addEventListener("click", () => {
     curr_state = ModelState.SQUARE
     console.log(curr_state)
-
-    const model = new RectangleModel(glWin.gl);
-    model.init()
-    model.draw()
-    const model2 = new SquareModel(glWin.gl);
-    model2.init()
-    model2.draw()
-
 })
 
 rectangle_btn.addEventListener("click", () => {
