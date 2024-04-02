@@ -2,6 +2,7 @@ import vertexShaderSource from "../shaders/vertex-shader-2d.vert?raw";
 import fragmentShaderSource from "../shaders/fragment-shader-2d.frag?raw";
 import { BufferInfo } from "../types/buffer-info";
 import { BaseModel } from "../models/base-model";
+import { ModelType } from "../types/enum/model-state";
 
 export class WebGlWindow {
     public canvas: HTMLCanvasElement;
@@ -47,7 +48,27 @@ export class WebGlWindow {
             this.setUniforms(this.uniformSetters, baseShape.uniforms);
             this.setPosition(baseShape.positionBuffer);
             this.setColor(baseShape.colorBuffer);
-            this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, baseShape.positionBuffer.len);
+
+            switch (baseShape.type) {
+                case ModelType.LINE:
+                    this.gl.drawArrays(this.gl.LINES, 0, baseShape.positionBuffer.len);
+                    break;
+
+                case ModelType.SQUARE:
+                    this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, baseShape.positionBuffer.len);
+                    break;
+
+                case ModelType.RECTANGLE:
+                    this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, baseShape.positionBuffer.len);
+                    break;
+
+                case ModelType.POLYGON:
+                    this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, baseShape.positionBuffer.len);
+                    break;
+            
+                case ModelType.NULL:
+                    throw Error("Tried to draw null type model")
+            }
         });
     }
 

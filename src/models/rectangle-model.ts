@@ -1,35 +1,32 @@
 import { BufferInfo } from "../types/buffer-info";
+import { Coordinates } from "../types/coordinates";
+import { ModelType } from "../types/enum/model-state";
 import { BaseModel } from "./base-model";
 
 export class RectangleModel extends BaseModel {
-    constructor() {
-        super()
-        
-        this.positionBuffer =  new BufferInfo(
+    constructor(points: Array<Coordinates>) {
+        super();
+        if(points.length != 2) throw Error("Points in rectangle is not 2")
+        this.type = ModelType.RECTANGLE
+
+        this.positionBuffer = new BufferInfo(
             4,
             [
-                100, 100, 0, 1,
-                0, 100, 0, 1,
-                0, 0, 0, 1,
-                100, 0, 0, 1
+                points[0].x, points[0].y, 0, 1,
+                points[0].x, points[1].y, 0, 1,
+                points[1].x, points[1].y, 0, 1,
+                points[1].x, points[0].y, 0, 1
             ]
         )
+
         this.colorBuffer = new BufferInfo(
             4,
             [
-                1.0, 0.0, 0.0, 1,
-                0.0, 1.0, 0.0, 1,
-                0.0, 0.0, 1.0, 1,
+                0.5, 0.5, 0.5, 1,
+                0.5, 0.5, 0.5, 1,
+                0.5, 0.5, 0.5, 1,
                 0.5, 0.5, 0.5, 1
             ]
         )
-
-        this.uniforms.u_matrix = 
-            [
-                1, 0, 0, 
-                0, 1, 0,
-                0, 0, 1, 
-            ]
     }
-
 }

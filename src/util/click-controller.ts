@@ -3,14 +3,14 @@ import { LineModel } from "../models/line-model";
 import { PolygonModel } from "../models/polygon-model";
 import { RectangleModel } from "../models/rectangle-model";
 import { SquareModel } from "../models/square-model";
-import { ModelState } from "../types/enum/model-state";
+import { Coordinates } from "../types/coordinates";
+import { ModelType } from "../types/enum/model-state";
 import { WebGlWindow } from "./web-gl-window";
 
 export class ClickController{
-    public state: ModelState = ModelState.LINE
-    private clickCounter: number = 0
+    public state: ModelType = ModelType.NULL
     private glWin: WebGlWindow
-    private buffer: Array<Array<number>>
+    private buffer: Array<Coordinates>
 
     constructor(glWin: WebGlWindow){
         this.glWin = glWin
@@ -18,36 +18,34 @@ export class ClickController{
     }
     
     reset(){
-        this.clickCounter = 0
         this.buffer = []
     }
 
     handleClick(event:MouseEvent) {
-        this.buffer.push(new Array<number>(event.offsetX, event.offsetY))
-        
-        if(this.clickCounter++ < 2) return
-        
+        if(this.state == ModelType.NULL) return
+
+        this.buffer.push(new Coordinates(event.offsetX, event.offsetY))        
+        if(this.buffer.length < 2) return
+
         let model: BaseModel;
         switch (this.state) {
-            case ModelState.LINE:
-                model = new LineModel()
+            case ModelType.LINE:
+                model = new LineModel(this.buffer)
                 break;
-            case ModelState.SQUARE:
-                model = new SquareModel()
+            case ModelType.SQUARE:
+                model = new SquareModel(this.buffer)
                 break;
-            case ModelState.RECTANGLE:
-                model = new RectangleModel()
+            case ModelType.RECTANGLE:
+                model = new RectangleModel(this.buffer)
                 break;
-            case ModelState.POLYGON:
-                model = new PolygonModel()
+            case ModelType.POLYGON:
+                model = new PolygonModel(this.buffer)
                 break;
         }
 
-        if(this.state != ModelState.POLYGON){
-            this.glWin.draw([model])
-            this.clickCounter = 0 
-        } else{
-            // Handle polygon
+        this.glWin.draw([model])
+        if(this.state != ModelType.POLYGON){
+            this.buffer = []
         }
     }
 }

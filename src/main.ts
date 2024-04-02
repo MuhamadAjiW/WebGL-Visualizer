@@ -1,8 +1,5 @@
-import { BaseModel } from "./models/base-model.ts";
-import { RectangleModel } from "./models/rectangle-model.ts";
-import { ModelState } from "./types/enum/model-state.ts";
+import { ModelType } from "./types/enum/model-state.ts";
 import { ClickController } from "./util/click-controller.ts";
-import { m3 } from "./util/m3.ts";
 import { WebGlWindow } from "./util/web-gl-window.ts";
 
 // Button Listener
@@ -14,27 +11,27 @@ const glWin = new WebGlWindow("canvas");
 const controller = new ClickController(glWin)
 
 line_btn.addEventListener("click", () => {
-    controller.state = ModelState.LINE
+    controller.state = ModelType.LINE
+    controller.reset()
 })
 
 square_btn.addEventListener("click", () => {
-    controller.state = ModelState.SQUARE
+    controller.state = ModelType.SQUARE
+    controller.reset()
 })
 
 rectangle_btn.addEventListener("click", () => {
-    controller.state = ModelState.RECTANGLE
-    let rectangleModel = new RectangleModel()
-    glWin.draw([rectangleModel])
+    controller.state = ModelType.RECTANGLE
+    controller.reset()
 })
 
 polygon_btn.addEventListener("click", () => {
-    controller.state = ModelState.POLYGON
-    reset_canvas()
+    controller.state = ModelType.POLYGON
+    controller.reset()
 })
 
 glWin.canvas.addEventListener("click", (event) =>{
-    console.log(event.offsetX)
-    console.log(event.offsetY)
+    controller.handleClick(event)
 })
 
 function reset_canvas() {

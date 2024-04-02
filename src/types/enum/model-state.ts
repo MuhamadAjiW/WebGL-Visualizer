@@ -1,4 +1,5 @@
-export enum ModelState {
+export enum ModelType {
+    NULL,
     LINE,
     SQUARE,
     RECTANGLE,
