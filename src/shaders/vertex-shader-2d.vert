@@ -16,6 +16,9 @@ void main() {
 
     // Multiply the position by the matrix. scale to 2D first because matrix is 3D
     vec2 position = (u_matrix * vec3(clipSpace.xy, 1)).xy;
-    gl_Position = vec4(position, 0, 1);
+
+    vec2 topLeftPosition = position * vec2(1, -1);
+
+    gl_Position = vec4(topLeftPosition, 0, 1);
     fragColor = vertColor;
 }

@@ -23,6 +23,8 @@ square_btn.addEventListener("click", () => {
 
 rectangle_btn.addEventListener("click", () => {
     controller.state = ModelState.RECTANGLE
+    let rectangleModel = new RectangleModel()
+    glWin.draw([rectangleModel])
 })
 
 polygon_btn.addEventListener("click", () => {
