@@ -1,6 +1,6 @@
 attribute vec4 a_position;
-attribute vec4 vertColor;
-varying vec4 fragColor;
+attribute vec4 a_color;
+varying vec4 v_color;
 uniform mat3 u_matrix;
 uniform vec2 u_resolution;
 
@@ -20,5 +20,5 @@ void main() {
     vec2 topLeftPosition = position * vec2(1, -1);
 
     gl_Position = vec4(topLeftPosition, 0, 1);
-    fragColor = vertColor;
+    v_color = a_color;
 }
