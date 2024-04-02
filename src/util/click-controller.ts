@@ -42,8 +42,8 @@ export class ClickController{
                 model = new PolygonModel(this.buffer)
                 break;
         }
-
-        this.glWin.draw([model])
+        this.glWin.addModel(model)
+        this.glWin.draw()
         if(this.state != ModelType.POLYGON){
             this.buffer = []
         }

@@ -15,6 +15,7 @@ export class WebGlWindow {
     protected positionBuffer: WebGLBuffer;
     protected colorBuffer: WebGLBuffer;
     protected uniformSetters: UniformSetters;
+    protected modelBuffer: BaseModel[] = [];
 
     constructor(id: string) {
         this.canvas = document.getElementById(id) as HTMLCanvasElement;
@@ -36,14 +37,14 @@ export class WebGlWindow {
         this.colorBuffer = this.gl.createBuffer() as WebGLBuffer;
     }
 
-    public draw(baseShapes: BaseModel[]): void {
+    public draw(): void {
         this.gl.useProgram(this.program);
         this.resizeCanvasToDisplaySize(this.canvas);
         this.setUniforms(this.uniformSetters, {u_resolution: [this.canvas.width, this.canvas.height]});
         console.log(this.canvas.width, this.canvas.height);
         
         
-        baseShapes.forEach((baseShape: BaseModel) => {
+        this.modelBuffer.forEach((baseShape: BaseModel) => {
             this.gl.useProgram(this.program);
             this.setUniforms(this.uniformSetters, baseShape.uniforms);
             this.setPosition(baseShape.positionBuffer);
@@ -70,6 +71,10 @@ export class WebGlWindow {
                     throw Error("Tried to draw null type model")
             }
         });
+    }
+
+    public addModel(model: BaseModel): void {
+        this.modelBuffer.push(model);
     }
 
     protected createShader(source: string, type: number): WebGLShader {
