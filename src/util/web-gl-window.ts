@@ -27,7 +27,7 @@ export class WebGlWindow {
         this.program = this.createProgram(this.vertexShader, this.fragmentShader);
 
         this.positionAttribLocation = this.gl.getAttribLocation(this.program, "a_position");
-        this.colorAttribLocation = this.gl.getAttribLocation(this.program, "vertColor");
+        this.colorAttribLocation = this.gl.getAttribLocation(this.program, "a_color");
 
         this.uniformSetters = this.createUniformSetters(this.gl, this.program);
         console.log(this.uniformSetters);
