@@ -11,14 +11,17 @@ export class ClickController{
     public state: ModelType = ModelType.NULL
     private glWin: WebGlWindow
     private buffer: Array<Coordinates>
+    private currentKey: string
 
     constructor(glWin: WebGlWindow){
         this.glWin = glWin
         this.buffer = []
+        this.currentKey = ""
     }
     
     reset(){
         this.buffer = []
+        this.currentKey = ""
     }
 
     handleClick(event:MouseEvent) {
@@ -39,12 +42,16 @@ export class ClickController{
                 model = new RectangleModel(this.buffer)
                 break;
             case ModelType.POLYGON:
+                if(this.buffer.length < 4) return;
                 model = new PolygonModel(this.buffer)
                 break;
         }
-        this.glWin.addModel(model, this.buffer[0])
         if(this.state != ModelType.POLYGON){
+            this.currentKey = this.glWin.addModel(model, this.buffer[0])
             this.buffer = []
+        } else{
+            this.currentKey = this.glWin.addModel(model, this.buffer[0], this.currentKey)
         }
+
     }
 }

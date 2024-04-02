@@ -47,7 +47,7 @@ export class WebGlWindow {
         this.colorBuffer = this.gl.createBuffer() as WebGLBuffer;
     }
 
-    public addModel(model: BaseModel, start: Coordinates, modelKey: string=""): void {
+    public addModel(model: BaseModel, start: Coordinates, modelKey: string="", replacedModelKey: string=""): string {
         this.lerpCode++;
 
         let lerpModel = new BaseModel()
@@ -66,7 +66,21 @@ export class WebGlWindow {
         )
 
         let lerpKey = this.lerpCode + "_lerp";
-        this.animateModel(lerpKey, lerpModel, model, modelKey)
+
+        const key: string = modelKey === ""? "Model" + this.modelMapKey++ : modelKey;
+        this.animateModel(lerpKey, lerpModel, model, key, replacedModelKey);
+
+        return key;
+    }
+
+    public removeModel(modelKey: string){
+        this.modelBuffer.delete(modelKey);
+        this.draw();
+    }
+
+    public setModel(modelKey: string, modelData: BaseModel){
+        this.modelBuffer.set(modelKey, modelData);
+        this.draw()
     }
 
     public clear(){
@@ -119,7 +133,7 @@ export class WebGlWindow {
         this.draw();
     }
 
-    private animateModel(lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string){
+    private animateModel(lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string, replacedModelKey: string=""){
         lerpModel.positionBuffer.data.forEach((value, index) => {
             lerpModel.positionBuffer.data[index] =
                 lerp(value, targetModel.positionBuffer.data[index], WebGlWindow.lerpModifier);
@@ -132,8 +146,10 @@ export class WebGlWindow {
         if(lerpModel.positionBuffer.data.every((value, index) => 
             Math.abs(value - targetModel.positionBuffer.data[index]) < WebGlWindow.lerpTolerance)
         ){
-            const key = modelKey === ""? "Model" + this.modelMapKey++ : modelKey;
-            this.modelBuffer.set(key, targetModel);
+            this.modelBuffer.set(modelKey, targetModel);
+            this.draw()
+            if(replacedModelKey !== "") this.removeModel(replacedModelKey);
+            console.log(this.modelBuffer)
             return;
         };
 
