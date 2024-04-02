@@ -13,6 +13,10 @@ export function hull(bufPos: BufferInfo, bufCol: BufferInfo): [BufferInfo, Buffe
         vColArr.push([colArr[i], colArr[i+1], colArr[i+2], colArr[i+3]])
     }
 
+    console.log("vPosArr", vPosArr);
+    console.log("vColArr", vColArr);
+
+    // TODO: Handle duplicate vertices
     // let uniqueVertexArray = removeDuplicateVertex(vertexArray)
 
     let leftMostIndex = leftMostVertIndex(vPosArr)
@@ -46,7 +50,8 @@ export function hull(bufPos: BufferInfo, bufCol: BufferInfo): [BufferInfo, Buffe
         pOH = end
     } while ((end[0] !== solPos[0][0]) || (end[1] !== solPos[0][1]))
 
-    console.log(solPos, solCol);
+    // console.log("solPos", solPos);
+    // console.log("solCol", solCol);
 
     let positionBuffer = new BufferInfo(solPos.length, flattenForPos(solPos))
     let colorBuffer = new BufferInfo(solCol.length, flattenForCol(solCol))
@@ -81,37 +86,20 @@ function crossProduct (a: Array<number>, b: Array<number>) {
     return a[0] * b[1] - a[1] * b[0]
 }
 
-function flattenForPos(vertexArray: Array<Array<number>>) {
+export function flattenForPos(vertexArray: Array<Array<number>>) {
     let flatVertexArray: number[] = []
     for (let i = 0; i < vertexArray.length; i++) {
-        flatVertexArray.concat(vertexArray[i])
-        flatVertexArray.concat([0, 1])
+        flatVertexArray.push(...vertexArray[i])
+        flatVertexArray.push(...[0, 1])
     }
     return flatVertexArray
 }
 
-function flattenForCol(vertexArray: Array<Array<number>>) {
+export function flattenForCol(vertexArray: Array<Array<number>>) {
     let flatVertexArray: number[] = []
     for (let i = 0; i < vertexArray.length; i++) {
-        flatVertexArray.concat(vertexArray[i])
+        flatVertexArray.push(...vertexArray[i])
     }
     return flatVertexArray
 }
 
-let bufPos = new BufferInfo(4, [0, 0, 0, 1, 1, 1, 1, 0])
-
-// algorithm jarvis(S) is
-//     // S is the set of points
-//     // P will be the set of points which form the convex hull. Final set size is i.
-//     pointOnHull = leftmost point in S // which is guaranteed to be part of the CH(S)
-//     i := 0
-//     repeat
-//         P[i] := pointOnHull
-//         endpoint := S[0]      // initial endpoint for a candidate edge on the hull
-//         for j from 0 to |S| do
-//             // endpoint == pointOnHull is a rare case and can happen only when j == 1 and a better endpoint has not yet been set for the loop
-//             if (endpoint == pointOnHull) or (S[j] is on left of line from P[i] to endpoint) then
-//                 endpoint := S[j]   // found greater left turn, update endpoint
-//         i := i + 1
-//         pointOnHull = endpoint
-//     until endpoint = P[0]      // wrapped around to first hull point
