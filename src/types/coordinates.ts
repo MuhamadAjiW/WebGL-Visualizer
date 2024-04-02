@@ -11,7 +11,7 @@ export class Coordinates {
         this.p = p;
     }
 
-    getComponents(): number {
-        return this.x, this.y, this.z, this.p
+    getComponents(): number[] {
+        return [this.x, this.y, this.z, this.p]
     }
 }

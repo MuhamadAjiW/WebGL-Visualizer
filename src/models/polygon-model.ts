@@ -6,25 +6,25 @@ import { BaseModel } from "./base-model";
 export class PolygonModel extends BaseModel {
     constructor(points: Array<Coordinates>) {
         super();
-        if(points.length < 3) throw Error("Points in polygon is less than 3")
+        if(points.length < 4) throw Error("Points in polygon is less than 3")
         this.type = ModelType.POLYGON
-
-        const positionData: number[] = []
+    
+        let positionData: number[] = []
         for (let index = 0; index < points.length; index++) {
-            positionData.push(points[index].getComponents())
+            positionData = positionData.concat(points[index].getComponents())
         }
 
-        const colorData: number[] = []
+        let colorData: number[] = []
         for (let index = 0; index < points.length; index++) {
-            colorData.push(0.5, 0.5, 0.5, 1)
+            colorData = colorData.concat([0.5, 0.5, 0.5, 1])
         }
 
         this.positionBuffer = new BufferInfo(
-            positionData.length,
+            points.length,
             positionData
         )
         this.colorBuffer = new BufferInfo(
-            colorData.length,
+            points.length,
             colorData
         )
     }
