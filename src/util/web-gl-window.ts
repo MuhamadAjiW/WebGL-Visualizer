@@ -40,7 +40,6 @@ export class WebGlWindow {
         this.colorAttribLocation = this.gl.getAttribLocation(this.program, "a_color");
 
         this.uniformSetters = this.createUniformSetters(this.gl, this.program);
-        console.log(this.uniformSetters);
         
         this.positionBuffer = this.gl.createBuffer() as WebGLBuffer;
         this.colorBuffer = this.gl.createBuffer() as WebGLBuffer;
@@ -97,8 +96,6 @@ export class WebGlWindow {
         this.gl.useProgram(this.program);
         this.resizeCanvasToDisplaySize(this.canvas);
         this.setUniforms(this.uniformSetters, {u_resolution: [this.canvas.width, this.canvas.height]});
-        console.log(this.canvas.width, this.canvas.height);
-        
         
         this.modelBuffer.forEach((baseShape: BaseModel) => {
             this.gl.useProgram(this.program);
@@ -138,7 +135,7 @@ export class WebGlWindow {
         if (!success) {
             const err: string = `Shader compilation failed: ${this.gl.getShaderInfoLog(shader)}`;
 
-            console.log(err);
+            console.log("ERROR",err);
             this.gl.deleteShader(shader);
             throw err;
         }
@@ -181,7 +178,6 @@ export class WebGlWindow {
         for (const uniforms of values) {
             Object.keys(uniforms).forEach(function (name) {
                 const setter = setters[name];
-                console.log(name, uniforms[name]);
                 if (setter) {
                     setter(uniforms[name]);
                 }
