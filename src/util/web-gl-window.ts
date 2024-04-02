@@ -1,19 +1,16 @@
 import vertexShaderSource from "../shaders/vertex-shader-2d.vert?raw";
 import fragmentShaderSource from "../shaders/fragment-shader-2d.frag?raw";
 import { BufferInfo } from "../types/buffer-info";
-import { BaseModel } from "../models/base-model";
+import { BaseModel } from '../models/base-model';
 import { ModelType } from "../types/enum/model-state";
 import { Coordinates } from "../types/coordinates";
 import { lerp } from "./math-util";
+import { ExportData } from '../types/export-data';
 
-export class WebGlWindow {
-    static lerpCount: number = 5;
-    static lerpModifier: number = 0.1;
-    static lerpTolerance: number = 0.1;
-
+export class WebGlWindow {    
     public canvas: HTMLCanvasElement;
     public gl: WebGLRenderingContext;
-
+    
     private vertexShader: WebGLShader;
     private fragmentShader: WebGLShader;
     private program: WebGLProgram;
@@ -22,10 +19,15 @@ export class WebGlWindow {
     private positionBuffer: WebGLBuffer;
     private colorBuffer: WebGLBuffer;
     private uniformSetters: UniformSetters;
+    
     private modelBuffer: Map<string, BaseModel> = new Map<string, BaseModel>();
     private modelMapKey: number = 0;
-    private lerpCode: number = 0;
 
+    private lerpCode: number = 0;
+    static lerpCount: number = 5;
+    static lerpModifier: number = 0.1;
+    static lerpTolerance: number = 0.1;
+    
     constructor(id: string) {
         this.canvas = document.getElementById(id) as HTMLCanvasElement;
         this.gl = this.canvas.getContext("webgl") as WebGL2RenderingContext;
@@ -40,13 +42,13 @@ export class WebGlWindow {
         this.colorAttribLocation = this.gl.getAttribLocation(this.program, "a_color");
 
         this.uniformSetters = this.createUniformSetters(this.gl, this.program);
-        console.log(this.uniformSetters);
+        // console.log(this.uniformSetters);
         
         this.positionBuffer = this.gl.createBuffer() as WebGLBuffer;
         this.colorBuffer = this.gl.createBuffer() as WebGLBuffer;
     }
 
-    public addModel(model: BaseModel, start: Coordinates): void {
+    public addModel(model: BaseModel, start: Coordinates, modelKey: string=""): void {
         this.lerpCode++;
 
         let lerpModel = new BaseModel()
@@ -65,13 +67,60 @@ export class WebGlWindow {
         )
 
         let lerpKey = this.lerpCode + "_lerp";
-        this.animateModel(lerpKey, lerpModel, model)
+        this.animateModel(lerpKey, lerpModel, model, modelKey)
     }
 
-    private animateModel(lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel){
-        console.log("Lerping...")
-        console.log(lerpModel.positionBuffer.data)
+    public clear(){
+        this.gl.clearColor(1, 1, 1, 1.0);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.modelBuffer.clear()
+    }
 
+    public save(){
+        const serialized : ExportData = {
+            modelMapKey: this.modelMapKey,
+            modelBuffer: Array.from(this.modelBuffer.entries())
+        }
+        const jsonStr = JSON.stringify(serialized);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const temp = document.createElement('a');
+        temp.href = url;
+        temp.download = "export";
+        document.body.appendChild(temp);
+        temp.click();
+        document.body.removeChild(temp);
+        URL.revokeObjectURL(url);
+    }
+
+    public load(jsonStr: string){
+        this.clear()
+        
+        const parsed = JSON.parse(jsonStr) as ExportData;
+        
+        const buffer = new Map<string, BaseModel>(parsed.modelBuffer);
+        this.modelMapKey = parsed.modelMapKey
+
+        buffer.forEach((val, key) => {
+            let model = val;
+            model.colorBuffer.data = new Float32Array(Object.values(val.colorBuffer.data))
+            model.positionBuffer.data = new Float32Array(Object.values(val.positionBuffer.data))
+            
+            let startCoords = new Coordinates(
+                model.positionBuffer.data[0],
+                model.positionBuffer.data[1],
+                model.positionBuffer.data[2],
+                model.positionBuffer.data[3]
+            )
+
+            this.addModel(model, startCoords, key);
+        })
+
+        this.draw();
+    }
+
+    private animateModel(lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string){
         lerpModel.positionBuffer.data.forEach((value, index) => {
             lerpModel.positionBuffer.data[index] =
                 lerp(value, targetModel.positionBuffer.data[index], WebGlWindow.lerpModifier);
@@ -84,12 +133,13 @@ export class WebGlWindow {
         if(lerpModel.positionBuffer.data.every((value, index) => 
             Math.abs(value - targetModel.positionBuffer.data[index]) < WebGlWindow.lerpTolerance)
         ){
-            this.modelBuffer.set("Model" + this.modelMapKey++, targetModel);
+            const key = modelKey === ""? "Model" + this.modelMapKey++ : modelKey;
+            this.modelBuffer.set(key, targetModel);
             return;
         };
 
         requestAnimationFrame(() => {
-            this.animateModel(lerpKey, lerpModel, targetModel)
+            this.animateModel(lerpKey, lerpModel, targetModel, modelKey)
         })
     }
 
@@ -97,10 +147,12 @@ export class WebGlWindow {
         this.gl.useProgram(this.program);
         this.resizeCanvasToDisplaySize(this.canvas);
         this.setUniforms(this.uniformSetters, {u_resolution: [this.canvas.width, this.canvas.height]});
-        console.log(this.canvas.width, this.canvas.height);
-        
+        // console.log(this.canvas.width, this.canvas.height);
         
         this.modelBuffer.forEach((baseShape: BaseModel) => {
+            // console.log(baseShape.positionBuffer)
+            // console.log(baseShape.colorBuffer)
+
             this.gl.useProgram(this.program);
             this.setUniforms(this.uniformSetters, baseShape.uniforms);
             this.setPosition(baseShape.positionBuffer);
@@ -123,7 +175,7 @@ export class WebGlWindow {
                     this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, baseShape.positionBuffer.len);
                     break;
             
-                case ModelType.NULL:
+                default:
                     throw Error("Tried to draw null type model")
             }
         });
@@ -138,7 +190,7 @@ export class WebGlWindow {
         if (!success) {
             const err: string = `Shader compilation failed: ${this.gl.getShaderInfoLog(shader)}`;
 
-            console.log(err);
+            console.error(err);
             this.gl.deleteShader(shader);
             throw err;
         }
@@ -156,7 +208,7 @@ export class WebGlWindow {
         if (!success) {
             const err: string = `Shader compilation failed: ${this.gl.getProgramInfoLog(program)}`;
 
-            console.log(err);
+            console.error(err);
             this.gl.deleteProgram(program);
             throw err;
         }
@@ -181,7 +233,7 @@ export class WebGlWindow {
         for (const uniforms of values) {
             Object.keys(uniforms).forEach(function (name) {
                 const setter = setters[name];
-                console.log(name, uniforms[name]);
+                // console.log(name, uniforms[name]);
                 if (setter) {
                     setter(uniforms[name]);
                 }
