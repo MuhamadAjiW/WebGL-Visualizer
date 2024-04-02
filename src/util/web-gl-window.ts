@@ -14,7 +14,6 @@ export class WebGlWindow {
     protected positionBuffer: WebGLBuffer;
     protected colorBuffer: WebGLBuffer;
     protected uniformSetters: UniformSetters;
-    
 
     constructor(id: string) {
         this.canvas = document.getElementById(id) as HTMLCanvasElement;
@@ -29,13 +28,20 @@ export class WebGlWindow {
         this.positionAttribLocation = this.gl.getAttribLocation(this.program, "a_position");
         this.colorAttribLocation = this.gl.getAttribLocation(this.program, "vertColor");
 
-
         this.uniformSetters = this.createUniformSetters(this.gl, this.program);
+        console.log(this.uniformSetters);
+        
         this.positionBuffer = this.gl.createBuffer() as WebGLBuffer;
         this.colorBuffer = this.gl.createBuffer() as WebGLBuffer;
     }
 
     public draw(baseShapes: BaseModel[]): void {
+        this.gl.useProgram(this.program);
+        this.resizeCanvasToDisplaySize(this.canvas);
+        this.setUniforms(this.uniformSetters, {u_resolution: [this.canvas.width, this.canvas.height]});
+        console.log(this.canvas.width, this.canvas.height);
+        
+        
         baseShapes.forEach((baseShape: BaseModel) => {
             this.gl.useProgram(this.program);
             this.setUniforms(this.uniformSetters, baseShape.uniforms);
@@ -79,7 +85,7 @@ export class WebGlWindow {
 
         return program;
     }
-    protected setPosition(buffer: BufferInfo): void {   
+    protected setPosition(buffer: BufferInfo): void {
         this.gl.enableVertexAttribArray(this.positionAttribLocation);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, buffer.data, this.gl.STATIC_DRAW);
@@ -97,13 +103,14 @@ export class WebGlWindow {
         for (const uniforms of values) {
             Object.keys(uniforms).forEach(function (name) {
                 const setter = setters[name];
+                console.log(name, uniforms[name]);
                 if (setter) {
                     setter(uniforms[name]);
                 }
             });
         }
     }
-    
+
     protected createUniformSetters(gl: WebGLRenderingContext, program: WebGLProgram) {
         function createUniformSetter(program: WebGLProgram, uniformInfo: WebGLActiveInfo) {
             const location = gl.getUniformLocation(program, uniformInfo.name);
@@ -213,5 +220,22 @@ export class WebGlWindow {
             uniformSetters[name] = setter;
         }
         return uniformSetters;
+    }
+
+    protected resizeCanvasToDisplaySize(canvas: HTMLCanvasElement): boolean {
+        // Lookup the size the browser is displaying the canvas in CSS pixels.
+        const displayWidth = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
+
+        // Check if the canvas is not the same size.
+        const needResize = canvas.width !== displayWidth || canvas.height !== displayHeight;
+
+        if (needResize) {
+            // Make the canvas the same size
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+        }
+
+        return needResize;
     }
 }

@@ -1,4 +1,5 @@
 import { BaseModel } from "./models/base-model.ts";
+import { RectangleModel } from "./models/rectangle-model.ts";
 import { ModelState } from "./types/enum/model-state.ts";
 import { ClickController } from "./util/click-controller.ts";
 import { m3 } from "./util/m3.ts";
