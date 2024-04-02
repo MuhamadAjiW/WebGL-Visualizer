@@ -1,6 +1,7 @@
 import { BufferInfo } from "../types/buffer-info";
 import { Coordinates } from "../types/coordinates";
 import { ModelType } from "../types/enum/model-state";
+import { hull } from "../util/convex-hull";
 import { BaseModel } from "./base-model";
 
 export class PolygonModel extends BaseModel {
@@ -27,5 +28,14 @@ export class PolygonModel extends BaseModel {
             points.length,
             colorData
         )
+        const [resPos, resCol] = hull(this.positionBuffer, this.colorBuffer);
+        this.positionBuffer = resPos;
+        this.colorBuffer = resCol;
+    }
+
+    private convexHull(): void{
+        const [resPos, resCol] = hull(this.positionBuffer, this.colorBuffer);
+        this.positionBuffer = resPos;
+        this.colorBuffer = resCol;
     }
 }
