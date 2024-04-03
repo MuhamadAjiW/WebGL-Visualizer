@@ -7,8 +7,8 @@
     </head>
     <body style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center;">
         <div style="top: 0; left: 0; display: flex; flex-direction: column; width: 100%; height: 11vh; border: 1px solid black;">
-            <h1>Grafkom-tall</h1>
-            <div style="display: flex; flex-direction: row; justify-content: space-between;">
+            <h3>Grafkom-tall</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; align-content: center">
                 <div style="display: flex; flex-direction: row; gap: 5px;">
                     <button id="line-button">Line</button>
                     <button id="square-button">Square</button>
@@ -21,6 +21,32 @@
                     <label>Selected Marker:</label>
                     <label id="marker-label">none</label>
                 </div>
+                <div style="display: flex; flex-direction: row; align-self: center">
+                    <label style="align-self: center" for="model-dropdown">Choose a model:</label>
+                    <select style="align-self: center; margin-right: 20px" name="model" id="model-dropdown">
+                        <option value="">Select Model</option>
+                        <optgroup id="line-group" style="display: none" label="Line"></optgroup>
+                        <optgroup id="square-group" style="display: none;" label="Square"></optgroup>
+                        <optgroup id="rectangle-group" style="display: none;" label="Rectangle"></optgroup>
+                        <optgroup id="polygon-group" style="display: none;" label="Polygon"></optgroup>
+                    </select>
+
+                    <div id="slider-container" style="display: flex; flex-direction: row ;visibility: hidden">
+                        <div style="display: flex; flex-direction: column;">
+                            <label id="x-slider-label" for="x-slider">X Slider: 0</label>
+                            <input id="x-slider" type="range" min="-400" max="400" value="0" class="slider">
+
+                            <label id="y-slider-label" for="y-slider">Y Slider: 0</label>
+                            <input id="y-slider" type="range" min="-400" max="400" value="0" class="slider">
+                        </div>
+
+                        <div style="display: flex; flex-direction: column;">
+                            <label id="rotate-slider-label" for="rotate-slider">Rotation Slider</label>
+                            <input id="rotate-slider" type="range" min="0" max="360" value="0" class="slider">
+                        </div>
+                    </div>
+
+                </div>
                 <div style="display: flex; flex-direction: row; gap: 5px;">
                     <button id="clear-button">Clear</button>
                     <button id="save-button">Save</button>
@@ -29,7 +55,7 @@
                 </div>
             </div>
         </div>
-        <canvas id="canvas" width="0" height="0" style="border:2px solid #000000;"></canvas>
+        <canvas id="canvas" width="0" height="0" style="border:2px solid #000000; margin-top: 50px"></canvas>
     </body>
 
   <script type="module" src="src/main.ts"></script>
