@@ -6,6 +6,7 @@ import { ModelType } from "../types/enum/model-state";
 import { Coordinates } from "../types/coordinates";
 import { lerp } from "./math-util";
 import { ExportData } from '../types/export-data';
+import { Config } from '../config';
 
 export class WebGlWindow {    
     public canvas: HTMLCanvasElement;
@@ -23,10 +24,11 @@ export class WebGlWindow {
     private modelBuffer: Map<string, BaseModel> = new Map<string, BaseModel>();
     private modelMapKey: number = 0;
 
+    private markerBuffer: Map<string, BaseModel> = new Map<string, BaseModel>();
+    private markerMapKey: number = 0;
+
     private lerpCode: number = 0;
-    static lerpCount: number = 5;
-    static lerpModifier: number = 0.1;
-    static lerpTolerance: number = 0.1;
+
     
     constructor(id: string) {
         this.canvas = document.getElementById(id) as HTMLCanvasElement;
@@ -47,7 +49,21 @@ export class WebGlWindow {
         this.colorBuffer = this.gl.createBuffer() as WebGLBuffer;
     }
 
-    public addModel(model: BaseModel, start: Coordinates, modelKey: string="", replacedModelKey: string=""): string {
+    public unsetModel(modelKey: string){
+        this.modelBuffer.delete(modelKey);
+        this.draw();
+    }
+
+    public setModel(modelKey: string, modelData: BaseModel){
+        this.modelBuffer.set(modelKey, modelData);
+        this.draw()
+    }
+
+    public getModel(modelKey: string) : BaseModel | undefined{
+        return this.modelBuffer.get(modelKey);
+    }
+
+    public async addModel(model: BaseModel, start: Coordinates, modelKey: string="", replacedModelKey: string="", isMarker: boolean=false): Promise<string> {
         this.lerpCode++;
 
         let lerpModel = new BaseModel()
@@ -67,14 +83,23 @@ export class WebGlWindow {
 
         let lerpKey = this.lerpCode + "_lerp";
 
-        const key: string = modelKey === ""? "Model" + this.modelMapKey++ : modelKey;
-        this.animateModel(lerpKey, lerpModel, model, key, replacedModelKey);
+        const key: string = modelKey === ""? (isMarker? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++) : modelKey;
+        this.animateModel(lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
 
+        await new Promise(resolve => {
+            const checkBuffer = () => {
+                if (this.modelBuffer.get(key) !== undefined) resolve(key);
+                else setTimeout(checkBuffer, 100);
+            };
+            checkBuffer();
+        });
+    
         return key;
     }
 
-    public removeModel(modelKey: string="") {
-        let model = this.modelBuffer.get(modelKey);
+    public async removeModel(modelKey: string="", isMarker=false) : Promise<void> {
+        let buffer = isMarker? this.markerBuffer : this.modelBuffer;
+        let model = buffer.get(modelKey);
         if(model == null) return;
 
         this.lerpCode++;
@@ -102,23 +127,44 @@ export class WebGlWindow {
         )
 
         let lerpKey = this.lerpCode + "_lerp";
-        this.animateModel(lerpKey, model, lerpModel, modelKey, modelKey);
+        this.animateModel(lerpKey, model, lerpModel, modelKey, modelKey, isMarker);
+
+        await new Promise<void>(resolve => {
+            const checkBuffer = () => {
+                if (buffer.get(modelKey) == undefined) resolve();
+                else setTimeout(checkBuffer, 100);
+            };
+            checkBuffer();
+        });
     }
 
-    public unsetModel(modelKey: string){
-        this.modelBuffer.delete(modelKey);
-        this.draw();
-    }
-
-    public setModel(modelKey: string, modelData: BaseModel){
-        this.modelBuffer.set(modelKey, modelData);
-        this.draw()
-    }
-
-    public clear(){
+    public async clear() : Promise<void> {
+        this.clearMarker();
         this.modelBuffer.forEach((_, key) => {
             this.removeModel(key);
         })
+
+        await new Promise<void>(resolve => {
+            const checkBuffer = () => {
+                if (this.modelBuffer.size == 0) resolve();
+                else setTimeout(checkBuffer, 100);
+            };
+            checkBuffer();
+        });
+    }
+
+    public async clearMarker(){
+        this.markerBuffer.forEach((_, key) => {
+            this.removeModel(key, true);
+        })
+
+        await new Promise<void>(resolve => {
+            const checkBuffer = () => {
+                if (this.markerBuffer.size == 0) resolve();
+                else setTimeout(checkBuffer, 100);
+            };
+            checkBuffer();
+        });
     }
 
     public save(){
@@ -139,68 +185,55 @@ export class WebGlWindow {
         URL.revokeObjectURL(url);
     }
 
-    public load(jsonStr: string){
-        this.clear()
+    public async load(jsonStr: string){
+        await this.clear()
         
         const parsed = JSON.parse(jsonStr) as ExportData;
         
         const buffer = new Map<string, BaseModel>(parsed.modelBuffer);
         this.modelMapKey = parsed.modelMapKey
 
-        requestAnimationFrame(() => {
-            this.loadInternal(buffer)
+        buffer.forEach((val, key) => {
+            let model = val;
+            model.colorBuffer.data = new Float32Array(Object.values(val.colorBuffer.data))
+            model.positionBuffer.data = new Float32Array(Object.values(val.positionBuffer.data))
+            
+            let startCoords = new Coordinates(
+                model.positionBuffer.data[0],
+                model.positionBuffer.data[1],
+                model.positionBuffer.data[2],
+                model.positionBuffer.data[3]
+            )
+    
+            this.addModel(model, startCoords, key);
         })
-
+    
         this.draw();
     }
 
-    private loadInternal(buffer: Map<string, BaseModel>){
-        if(this.modelBuffer.size == 0){
-            buffer.forEach((val, key) => {
-                let model = val;
-                model.colorBuffer.data = new Float32Array(Object.values(val.colorBuffer.data))
-                model.positionBuffer.data = new Float32Array(Object.values(val.positionBuffer.data))
-                
-                let startCoords = new Coordinates(
-                    model.positionBuffer.data[0],
-                    model.positionBuffer.data[1],
-                    model.positionBuffer.data[2],
-                    model.positionBuffer.data[3]
-                )
-    
-                this.addModel(model, startCoords, key);
-            })
-    
-            this.draw();
-            return;
-        }
-
-        requestAnimationFrame(() => {
-            this.loadInternal(buffer)
-        })
-    }
-
-    private animateModel(lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string, replacedModelKey: string=""){
+    private animateModel(lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string, replacedModelKey: string="", isMarker: boolean=false){
         lerpModel.positionBuffer.data.forEach((value, index) => {
             lerpModel.positionBuffer.data[index] =
-                lerp(value, targetModel.positionBuffer.data[index], WebGlWindow.lerpModifier);
+                lerp(value, targetModel.positionBuffer.data[index], Config.LERP_MODIFIER);
         })
 
-        this.modelBuffer.set(lerpKey, lerpModel);
+        const buffer: Map<string, BaseModel> = isMarker? this.markerBuffer : this.modelBuffer; 
+
+        buffer.set(lerpKey, lerpModel);
         this.draw();
-        this.modelBuffer.delete(lerpKey);
+        buffer.delete(lerpKey);
 
         if(lerpModel.positionBuffer.data.every((value, index) => 
-            Math.abs(value - targetModel.positionBuffer.data[index]) < WebGlWindow.lerpTolerance)
+            Math.abs(value - targetModel.positionBuffer.data[index]) < Config.LERP_TOLERANCE)
         ){
-            this.modelBuffer.set(modelKey, targetModel);
-            if(replacedModelKey !== "") this.unsetModel(replacedModelKey);
+            buffer.set(modelKey, targetModel);
+            if(replacedModelKey !== "") buffer.delete(replacedModelKey);
             this.draw();
             return;
         };
 
         requestAnimationFrame(() => {
-            this.animateModel(lerpKey, lerpModel, targetModel, modelKey, replacedModelKey)
+            this.animateModel(lerpKey, lerpModel, targetModel, modelKey, replacedModelKey, isMarker)
         })
     }
 
@@ -234,6 +267,22 @@ export class WebGlWindow {
             
                 default:
                     throw Error("Tried to draw null type model")
+            }
+        });
+
+        this.markerBuffer.forEach((baseShape: BaseModel) => {
+            this.gl.useProgram(this.program);
+            this.setUniforms(this.uniformSetters, baseShape.uniforms);
+            this.setPosition(baseShape.positionBuffer);
+            this.setColor(baseShape.colorBuffer);
+
+            switch (baseShape.type) {
+                case ModelType.SQUARE:
+                    this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, baseShape.positionBuffer.len);
+                    break;
+            
+                default:
+                    throw Error("Tried to draw non square marker")
             }
         });
     }  

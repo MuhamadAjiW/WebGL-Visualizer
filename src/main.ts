@@ -1,4 +1,5 @@
 import { RectangleModel } from "./models/rectangle-model.ts";
+import { SquareModel } from "./models/square-model.ts";
 import { Coordinates } from "./types/coordinates.ts";
 import { ModelType } from "./types/enum/model-state.ts";
 import { ClickController } from "./util/click-controller.ts";
