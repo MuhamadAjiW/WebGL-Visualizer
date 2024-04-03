@@ -40,6 +40,8 @@ polygon_btn.addEventListener("click", () => {
 
 clear_btn.addEventListener("click", () => {
     glWin.clear();
+    file_input.files = null;
+    file_input.value = '';
     controller.reset();
 })
 
@@ -56,13 +58,6 @@ file_input.addEventListener('change', async (event) => {
             if(event.target != null){
                 const fileContents = event.target.result;
                 glWin.load(fileContents as string);
-                // glWin.addModel(
-                //     new RectangleModel(
-                //         [new Coordinates(0, 0),
-                //         new Coordinates(100, 100)]
-                //     ),
-                //     new Coordinates(0, 0)
-                // )
             }
         };
 

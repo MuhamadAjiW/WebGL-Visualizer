@@ -73,7 +73,42 @@ export class WebGlWindow {
         return key;
     }
 
-    public removeModel(modelKey: string){
+    public removeModel(modelKey: string="") {
+        let model = this.modelBuffer.get(modelKey);
+        if(model == null) return;
+
+        this.lerpCode++;
+
+        let lerpModel = new BaseModel()
+        lerpModel.colorBuffer = model.colorBuffer
+        lerpModel.type = model.type
+        lerpModel.uniforms = model.uniforms
+
+        let start = new Coordinates(
+            model.positionBuffer.data[0],
+            model.positionBuffer.data[1],
+            model.positionBuffer.data[2],
+            model.positionBuffer.data[3]
+        )
+
+        let lerpModelData: number[] = []
+        for (let index = 0; index < model.positionBuffer.len; index++) {
+            lerpModelData = lerpModelData.concat(start.getComponents())
+        }
+
+        lerpModel.positionBuffer = new BufferInfo(
+            model.positionBuffer.len,
+            lerpModelData
+        )
+
+
+        this.unsetModel(modelKey);
+        
+        let lerpKey = this.lerpCode + "_lerp";
+        this.animateModel(lerpKey, model, lerpModel, modelKey, modelKey);
+    }
+
+    public unsetModel(modelKey: string){
         this.modelBuffer.delete(modelKey);
         this.draw();
     }
@@ -84,9 +119,12 @@ export class WebGlWindow {
     }
 
     public clear(){
-        this.gl.clearColor(1, 1, 1, 1.0);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        this.modelBuffer.clear()
+        // this.gl.clearColor(1, 1, 1, 1.0);
+        // this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        // this.modelBuffer.clear()
+        this.modelBuffer.forEach((_, key) => {
+            this.removeModel(key);
+        })
     }
 
     public save(){
@@ -147,14 +185,13 @@ export class WebGlWindow {
             Math.abs(value - targetModel.positionBuffer.data[index]) < WebGlWindow.lerpTolerance)
         ){
             this.modelBuffer.set(modelKey, targetModel);
-            this.draw()
-            if(replacedModelKey !== "") this.removeModel(replacedModelKey);
-            console.log(this.modelBuffer)
+            if(replacedModelKey !== "") this.unsetModel(replacedModelKey);
+            this.draw();
             return;
         };
 
         requestAnimationFrame(() => {
-            this.animateModel(lerpKey, lerpModel, targetModel, modelKey)
+            this.animateModel(lerpKey, lerpModel, targetModel, modelKey, replacedModelKey)
         })
     }
 
