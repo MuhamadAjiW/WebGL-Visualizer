@@ -7,7 +7,7 @@ export class BaseModel {
     public type: ModelType = ModelType.NULL
     public positionBuffer: BufferInfo = new BufferInfo(0, []);
     public colorBuffer: BufferInfo =  new BufferInfo(0, []);
-    public uniforms: Uniforms = {u_matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1]};
+    public uniforms: Uniforms = {u_matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]};
 
     public getBufferData(type: BufferType) : Array<Coordinates>{
         let retval: Array<Coordinates> = []

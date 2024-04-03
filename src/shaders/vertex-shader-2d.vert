@@ -1,13 +1,13 @@
 attribute vec4 a_position;
 attribute vec4 a_color;
 varying vec4 v_color;
-uniform mat3 u_matrix;
+uniform mat4 u_matrix;
 uniform vec2 u_resolution;
 
 void main() {
     // convert the position from pixels to 0.0 to 1.0
 
-    vec2 transformedPosition = (u_matrix * vec3((a_position).xy, 1)).xy;
+    vec2 transformedPosition = (u_matrix * a_position).xy;
     // vec2 a_postion = (u_matrix * vec3(a_postion.xy, 1)).xy;
 
     vec2 zeroToOne = transformedPosition / u_resolution;
