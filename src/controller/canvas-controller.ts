@@ -75,6 +75,14 @@ export class CanvasController {
         
         this.animateModel(lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
 
+        if (!key.includes("Marker")) {
+            const optGroup = document.getElementById(model.type.valueOf() + "-group") as HTMLOptGroupElement;
+            const option = document.createElement("option");
+            option.text = key;
+            optGroup.style.display = "block";
+            optGroup.append(option)
+        }
+
         await new Promise(resolve => {
             const checkBuffer = () => {
                 if (buffer.get(key) !== undefined) resolve(key);
