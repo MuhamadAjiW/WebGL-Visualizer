@@ -213,7 +213,7 @@ export class WebGlWindow {
             } catch(any){}
         })
 
-        return keys[0];
+        return keys[0]? keys[0] : "";
     }
 
     public save(){

@@ -1,15 +1,16 @@
 import { Coordinates } from "../types/coordinates";
-import { BaseModel } from "./base-model";
 import { SquareModel } from "./square-model";
 
 export class MarkerModel extends SquareModel {
     public index: number;
-    public color: Coordinates;
+    private color: Coordinates;
+    private active: boolean;
 
     constructor(points: Array<Coordinates>, boundIndex: number, color: Coordinates) {
         super(points);
         this.index = boundIndex;
         this.color = color;
+        this.active = false;
 
         let colorData: Array<number> = [];
         for (let index = 0; index < 4; index++) {
@@ -62,5 +63,25 @@ export class MarkerModel extends SquareModel {
             colorData = colorData.concat(color.getComponents());
         }
         this.colorBuffer.data = new Float32Array(colorData);
+    }
+
+    public highlight(){
+        const newColor = new Coordinates(this.color.x, this.color.y, this.color.z, 1);
+        this.setColor(newColor);
+    }
+    
+    public unhighlight(){
+        const newColor = new Coordinates(this.color.x, this.color.y, this.color.z, 0.8);
+        this.setColor(newColor);
+    }
+
+    public setActive(status: boolean){
+        this.active = status;
+        if(status) this.highlight();
+        else this.unhighlight();
+    }
+
+    public isActive(): boolean {
+        return this.active;
     }
 }

@@ -16,14 +16,15 @@ export class MouseController{
     private buffer: Array<Coordinates>
     private currentModelKey: string
     private currentMarkerKey: string
+    private hoverMarkerKey: string
     private clickBlocked: boolean = false
-    private hoverBlocked: boolean = false
     
     constructor(glWin: WebGlWindow){
         this.glWin = glWin
         this.buffer = []
         this.currentModelKey = ""
         this.currentMarkerKey = ""
+        this.hoverMarkerKey = ""
     }
     
     public reset(){
@@ -34,6 +35,24 @@ export class MouseController{
     public async handleClick(event:MouseEvent) {
         if(this.clickBlocked) return
         if(this.state == ModelType.NULL) return
+
+        if(this.hoverMarkerKey != "") {
+            if(this.currentMarkerKey != ""){
+                const marker = this.glWin.getMarker(this.currentMarkerKey)
+                if(marker != null){
+                    marker.setActive(false);
+                    this.glWin.setMarker(this.currentMarkerKey, marker);
+                }
+            }
+
+            this.currentMarkerKey = this.hoverMarkerKey;
+            const marker = this.glWin.getMarker(this.currentMarkerKey)
+            if(marker != null){
+                marker.setActive(true);
+                this.glWin.setMarker(this.currentMarkerKey, marker);
+            }
+            return;
+        };
 
         let coords = new Coordinates(event.offsetX, event.offsetY);
 
@@ -83,21 +102,19 @@ export class MouseController{
     public handleHover(event:MouseEvent) {
         const newMarkerKey = this.glWin.detectMarker(event.offsetX, event.offsetY);
 
-        if(newMarkerKey != this.currentMarkerKey){
-            let marker = this.glWin.getMarker(this.currentMarkerKey)
-            if(marker != null){
-                const newColor = new Coordinates(marker.colorBuffer.data[0], marker.colorBuffer.data[1], marker.colorBuffer.data[2], Config.MARKER_ALPHA);
-                marker.setColor(newColor);
-                this.glWin.setMarker(this.currentMarkerKey, marker);
+        if(newMarkerKey != this.hoverMarkerKey){
+            let marker = this.glWin.getMarker(this.hoverMarkerKey)
+            if(marker != null && !marker.isActive()){
+                marker.unhighlight();
+                this.glWin.setMarker(this.hoverMarkerKey, marker);
             }
-            this.currentMarkerKey = newMarkerKey;
-            if(this.currentMarkerKey == null) return;
+            this.hoverMarkerKey = newMarkerKey;
+            if(this.hoverMarkerKey == null) return;
     
-            marker = this.glWin.getMarker(this.currentMarkerKey)
+            marker = this.glWin.getMarker(this.hoverMarkerKey)
             if(marker != null){
-                const newColor = new Coordinates(marker.colorBuffer.data[0], marker.colorBuffer.data[1], marker.colorBuffer.data[2], 1);
-                marker.setColor(newColor);
-                this.glWin.setMarker(this.currentMarkerKey, marker);
+                marker.highlight();
+                this.glWin.setMarker(this.hoverMarkerKey, marker);
             }
         }
     }

@@ -70,7 +70,7 @@ load_btn.addEventListener("click", () => {
     file_input.click();
 })
 
-glWin.canvas.addEventListener("click", async (event) => {
+glWin.canvas.addEventListener("mousedown", async (event) => {
     await controller.handleClick(event);
 })
 
