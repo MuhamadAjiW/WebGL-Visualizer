@@ -36,32 +36,38 @@ export class UIController extends Observer<CanvasMouseEvent> {
             // mouseCtrl.removeMarker();
         })
 
-        line_btn.addEventListener("click", () => {
+        line_btn.onclick = () => {
             mouseCtrl.state = ModelType.LINE;
             mouseCtrl.reset();
-        })
+        }
         
-        square_btn.addEventListener("click", () => {
+        square_btn.onclick = () => {
             mouseCtrl.state = ModelType.SQUARE;
             mouseCtrl.reset();
-        })
+        }
         
-        rectangle_btn.addEventListener("click", () => {
+        rectangle_btn.onclick = () => {
             mouseCtrl.state = ModelType.RECTANGLE;
             mouseCtrl.reset();
-        })
+        }
         
-        polygon_btn.addEventListener("click", () => {
+        polygon_btn.onclick = () => {
             mouseCtrl.state = ModelType.POLYGON;
             mouseCtrl.reset();
-        })
+        }
 
         model_dropdown.onchange = () => {
             model_label.innerText = model_dropdown.value;
             slider_container.style.visibility = "visible";
+            if (model_dropdown.value === ""){
+                slider_container.style.visibility = "hidden";
+                return;
+            } else {
+                slider_container.style.visibility = "visible";
+            }
         }
 
-        x_slider.onchange = () => {
+        x_slider.oninput = () => {
             x_slider_label.innerText = "X Slider: " + x_slider.value;
             const model = glWin.getModel(model_label.innerText);
             if (model == null) return;
@@ -78,7 +84,7 @@ export class UIController extends Observer<CanvasMouseEvent> {
             await mouseCtrl.restoreFocusModel();
         }
 
-        y_slider.onchange = () => {
+        y_slider.oninput = () => {
             y_slider_label.innerText = "Y Slider: " + y_slider.value;
             const model = glWin.getModel(model_label.innerText);
             if (model == null) return;
@@ -95,7 +101,7 @@ export class UIController extends Observer<CanvasMouseEvent> {
             await mouseCtrl.restoreFocusModel();
         }
 
-        rotate_slider.onchange = () => {
+        rotate_slider.oninput = () => {
             rotate_slider_label.innerText = "Rotate Slider " + rotate_slider.value;
             const model = glWin.getModel(model_label.innerText);
             if (model == null) return;
@@ -118,18 +124,18 @@ export class UIController extends Observer<CanvasMouseEvent> {
             await mouseCtrl.restoreFocusModel();
         }
 
-        clear_btn.addEventListener("click", () => {
+        clear_btn.onclick = () => {
             glWin.clear();
             file_input.files = null;
             file_input.value = '';
             mouseCtrl.reset();
-        })
+        }
         
-        save_btn.addEventListener("click", () => {
+        save_btn.onclick = () => {
             glWin.save();
-        })
+        }
         
-        file_input.addEventListener('change', async () => {
+        file_input.onchange = async () => {
             if(file_input.files != null){
                 const file = file_input.files[0]
                 const fileReader = new FileReader();
@@ -143,19 +149,19 @@ export class UIController extends Observer<CanvasMouseEvent> {
         
                 fileReader.readAsText(file)
             }
-        })
+        }
         
-        load_btn.addEventListener("click", () => {
+        load_btn.onclick = () => {
             file_input.click();
-        })
-        
-        glWin.canvas.addEventListener("mousedown", async (event) => {
+        }
+
+        glWin.canvas.onmousedown = async (event) => {
             await mouseCtrl.handleClick(event);
-        })
+        }
         
-        glWin.canvas.addEventListener("mousemove", (event) => {
+        glWin.canvas.onmousemove = (event) => {
             mouseCtrl.handleHover(event);
-        })
+        }
         
         
         this.subscribe(mouseCtrl);
