@@ -1,3 +1,3 @@
 export function lerp(a: number, b: number, alpha: number ) {
-    return a + alpha * ( b - a )
+    return a < b? a + alpha * ( b - a ) : b + alpha * ( a - b )
 }

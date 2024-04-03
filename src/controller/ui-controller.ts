@@ -1,3 +1,4 @@
+import { Coordinates } from "../types/coordinates";
 import { ModelType } from "../types/enum/model-state";
 import { CanvasMouseEvent } from "../types/events/canvas-mouse-event";
 import { Observer } from "../types/events/web-gl-events";
@@ -21,7 +22,7 @@ export class UIController extends Observer<CanvasMouseEvent> {
         // TODO: delete, this a dummy button for function testing
         const test_btn = document.getElementById("test-button") as HTMLButtonElement
         test_btn.addEventListener("click", () => {
-            mouseCtrl.removeMarker();
+            mouseCtrl.changeMarkerColor(new Coordinates(0, 0, 1, 1));
         })
 
         line_btn.addEventListener("click", () => {

@@ -35,9 +35,9 @@ export class BaseModel {
 
     public clone() : BaseModel {
         let retval = new BaseModel();
-        retval.colorBuffer = this.colorBuffer;
         retval.type = this.type;
-        retval.colorBuffer = this.colorBuffer;
+        retval.positionBuffer = this.positionBuffer.clone();
+        retval.colorBuffer = this.colorBuffer.clone();
         retval.uniforms = this.uniforms;
         return retval;
     }

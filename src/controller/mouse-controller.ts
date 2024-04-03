@@ -120,7 +120,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             this.currentMarkerKey = ""
             this.hoverMarkerKey = ""
             this.glWin.clearMarker();
-            this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, new CanvasMouseEvent("", ""))
+            this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData())
             return;
         }
         
@@ -131,7 +131,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         this.currentModelKey = modelKey;
         this.currentMarkerKey = ""
         this.hoverMarkerKey = ""
-        this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, new CanvasMouseEvent(this.currentModelKey, ""));
+        this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData());
 
         this.glWin.clearMarker();
 
@@ -167,7 +167,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             marker.setActive(true);
             this.glWin.setMarker(this.currentMarkerKey, marker);
 
-            this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, new CanvasMouseEvent(this.currentModelKey, this.currentMarkerKey));
+            this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData());
         }
     }
 
@@ -195,6 +195,36 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         }
     }
 
+    public async changeMarkerColor(color: Coordinates){
+        if(this.currentMarkerKey == "" || this.currentModelKey == "") return;
+        
+        const model = this.glWin.getModel(this.currentModelKey);
+        if(!model) return;
+        
+        const marker = this.glWin.getMarker(this.currentMarkerKey)
+        if(marker != null){
+            const newModel = model.clone();
+            const offset = marker.index * 4;
+            newModel.colorBuffer.data[offset + 0] = color.x;
+            newModel.colorBuffer.data[offset + 1] = color.y;
+            newModel.colorBuffer.data[offset + 2] = color.z;
+            newModel.colorBuffer.data[offset + 3] = color.p;
+
+            const newMarker = marker.clone();
+            newMarker.setColor(color);
+
+            const [modelPromise, markerPromise] = await Promise.all([
+                this.glWin.updateModel(newModel, this.currentModelKey, false),
+                this.glWin.updateModel(newMarker, this.currentMarkerKey, true)
+            ]);
+
+            this.currentModelKey = modelPromise;
+            this.currentMarkerKey = markerPromise;
+
+            this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData())
+        }
+    }
+
     public async getModelBufferData(){
         if(this.currentModelKey == "") return;
 
@@ -202,5 +232,9 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         if(!model) return;
 
         this.buffer = model.getBufferData(BufferType.POSITION, false);
+    }
+
+    private getCanvasEventData() : CanvasMouseEvent{
+        return new CanvasMouseEvent(this.currentModelKey, this.currentMarkerKey);
     }
 }

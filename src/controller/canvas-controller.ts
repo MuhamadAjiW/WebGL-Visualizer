@@ -86,17 +86,24 @@ export class CanvasController {
         return key;
     }
 
-    public async updateModel(targetModel: BaseModel, modelKey: string="", isMarker: boolean=false): Promise<string> {
+    public async updateModel(targetModel: BaseModel, modelKey: string, isMarker: boolean=false): Promise<string> {
+        console.log("Start");
         const buffer = isMarker? this.markerBuffer : this.modelBuffer;
 
         const originModel = buffer.get(modelKey);
-        if(originModel == null) return "";
-        if(targetModel.positionBuffer.len != originModel.positionBuffer.len) throw Error("Target and origin model does not have the same vertex count");
-        
-        this.lerpCode++;
+        console.log(originModel?.colorBuffer);
 
-        let lerpModel = originModel;
+        if(originModel == null) throw Error("No origin model found");
+        if(targetModel.positionBuffer.len != originModel.positionBuffer.len) throw Error("Target and origin model does not have the same vertex count");
+
+        this.lerpCode++;
+        let lerpModel = originModel.clone();
         let lerpKey = this.lerpCode + "_lerp";
+
+        buffer.delete(modelKey);
+        this.draw();
+
+        console.log(lerpModel.colorBuffer);
 
         const key: string = isMarker? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++;
         this.animateModel(lerpKey, lerpModel, targetModel, key, modelKey, isMarker);
@@ -247,6 +254,8 @@ export class CanvasController {
             lerpModel.uniforms["u_matrix"][index] =
                 lerp(value, targetModel.uniforms["u_matrix"][index], Config.LERP_MODIFIER);
         });
+        console.log(lerpModel.colorBuffer);
+        console.log(targetModel.colorBuffer);
 
         const buffer: Map<string, BaseModel> = isMarker? this.markerBuffer : this.modelBuffer; 
 
@@ -258,7 +267,7 @@ export class CanvasController {
             Math.abs(value - targetModel.positionBuffer.data[index]) < Config.LERP_TOLERANCE)
             &&
             lerpModel.colorBuffer.data.every((value, index) => 
-            Math.abs(value - targetModel.colorBuffer.data[index]) < Config.LERP_TOLERANCE)
+            Math.abs(value - targetModel.colorBuffer.data[index]) < Config.LERP_TOLERANCE / 10)
             &&
             lerpModel.uniforms["u_matrix"].every((value, index) => 
             Math.abs(value - targetModel.uniforms["u_matrix"][index]) < Config.LERP_TOLERANCE)
