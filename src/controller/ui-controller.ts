@@ -12,7 +12,9 @@ export class UIController extends Observer<CanvasMouseEvent> {
     private clear_btn: HTMLButtonElement
     private save_btn: HTMLButtonElement
     private load_btn: HTMLButtonElement
-    private file_input = document.getElementById("file-input") as HTMLInputElement
+    private file_input: HTMLInputElement
+    private model_label: HTMLLabelElement
+    private marker_label: HTMLLabelElement
     
     constructor(glWin: CanvasController, mouseCtrl: MouseController){
         super();
@@ -24,6 +26,8 @@ export class UIController extends Observer<CanvasMouseEvent> {
         this.save_btn = document.getElementById("save-button") as HTMLButtonElement
         this.load_btn = document.getElementById("load-button") as HTMLButtonElement
         this.file_input = document.getElementById("file-input") as HTMLInputElement
+        this.model_label = document.getElementById("model-label") as HTMLLabelElement
+        this.marker_label = document.getElementById("marker-label") as HTMLLabelElement
         
         this.line_btn.addEventListener("click", () => {
             mouseCtrl.state = ModelType.LINE;
@@ -82,6 +86,13 @@ export class UIController extends Observer<CanvasMouseEvent> {
         
         glWin.canvas.addEventListener("mousemove", (event) => {
             mouseCtrl.handleHover(event);
+        })
+        
+        
+        this.subscribe(mouseCtrl);
+        this.addEventListener(CanvasMouseEvent.EVENT_FOCUS_CHANGE, (data) => {
+            this.model_label.innerText = data.modelFocusKey? data.modelFocusKey : "none";
+            this.marker_label.innerText = data.markerFocusKey? data.markerFocusKey : "none";
         })
         
         glWin.clear();

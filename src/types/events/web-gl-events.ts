@@ -24,10 +24,10 @@ export class Observer<T> implements EventListener<T> {
     public removeEventListener(eventName: string): void{
         this.eventListeners.delete(eventName);
     }
-    public subscribe(observer: Observable<T>): void{
+    public subscribe(observer: EventSource<T>): void{
         observer.addSubscriber(this);
     };
-    public unsubscribe(observer: Observable<T>): void{
+    public unsubscribe(observer: EventSource<T>): void{
         observer.removeSubscriber(this);
     };
 }
