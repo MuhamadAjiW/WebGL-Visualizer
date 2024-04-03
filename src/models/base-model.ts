@@ -1,5 +1,6 @@
 import { BufferInfo, Uniforms } from "../types/buffer-info";
 import { Coordinates } from "../types/coordinates";
+import { BufferType } from "../types/enum/buffer-type";
 import { ModelType } from "../types/enum/model-state";
 
 export class BaseModel {
@@ -8,19 +9,36 @@ export class BaseModel {
     public colorBuffer: BufferInfo =  new BufferInfo(0, []);
     public uniforms: Uniforms = {u_matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1]};
 
-    public getCoordinates() : Array<Coordinates>{
+    public getBufferData(type: BufferType) : Array<Coordinates>{
         let retval: Array<Coordinates> = []
 
-        for (let index = 0; index < this.positionBuffer.data.length; index += 4) {
+        let targetBuffer;
+        switch (type) {
+            case BufferType.COLOR: targetBuffer = this.colorBuffer; break;
+            case BufferType.POSITION: targetBuffer = this.positionBuffer; break;        
+            default:
+                throw Error("Invalid type buffer requested");
+        }
+
+        for (let index = 0; index < targetBuffer.data.length; index += 4) {
             let coords = new Coordinates(
-                this.positionBuffer.data[index],
-                this.positionBuffer.data[index+1],
-                this.positionBuffer.data[index+2],
-                this.positionBuffer.data[index+3]
+                targetBuffer.data[index],
+                targetBuffer.data[index+1],
+                targetBuffer.data[index+2],
+                targetBuffer.data[index+3]
             )
             retval.push(coords)
         }
 
         return retval;
     };
+
+    public clone() : BaseModel {
+        let retval = new BaseModel();
+        retval.colorBuffer = this.colorBuffer;
+        retval.type = this.type;
+        retval.colorBuffer = this.colorBuffer;
+        retval.uniforms = this.uniforms;
+        return retval;
+    }
 }

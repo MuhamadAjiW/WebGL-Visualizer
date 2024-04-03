@@ -2,7 +2,7 @@ import { RectangleModel } from "./models/rectangle-model.ts";
 import { SquareModel } from "./models/square-model.ts";
 import { Coordinates } from "./types/coordinates.ts";
 import { ModelType } from "./types/enum/model-state.ts";
-import { ClickController } from "./util/click-controller.ts";
+import { MouseController } from "./util/click-controller.ts";
 import { WebGlWindow } from "./util/web-gl-window.ts";
 
 // Button Listener
@@ -17,7 +17,7 @@ const load_btn = document.getElementById("load-button") as HTMLButtonElement
 const file_input = document.getElementById("file-input") as HTMLInputElement
 
 const glWin = new WebGlWindow("canvas");
-const controller = new ClickController(glWin)
+const controller = new MouseController(glWin)
 
 line_btn.addEventListener("click", () => {
     controller.state = ModelType.LINE;
@@ -71,7 +71,11 @@ load_btn.addEventListener("click", () => {
 })
 
 glWin.canvas.addEventListener("click", async (event) => {
-    await controller.handleClick(event)
+    await controller.handleClick(event);
+})
+
+glWin.canvas.addEventListener("mousemove", (event) => {
+    controller.handleHover(event);
 })
 
 glWin.clear();

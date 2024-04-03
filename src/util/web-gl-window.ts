@@ -7,6 +7,7 @@ import { Coordinates } from "../types/coordinates";
 import { lerp } from "./math-util";
 import { ExportData } from '../types/export-data';
 import { Config } from '../config';
+import { MarkerModel } from "../models/marker-model";
 
 export class WebGlWindow {    
     public canvas: HTMLCanvasElement;
@@ -24,7 +25,7 @@ export class WebGlWindow {
     private modelBuffer: Map<string, BaseModel> = new Map<string, BaseModel>();
     private modelMapKey: number = 0;
 
-    private markerBuffer: Map<string, BaseModel> = new Map<string, BaseModel>();
+    private markerBuffer: Map<string, MarkerModel> = new Map<string, MarkerModel>();
     private markerMapKey: number = 0;
 
     private lerpCode: number = 0;
@@ -59,11 +60,22 @@ export class WebGlWindow {
         this.draw()
     }
 
+    public setMarker(markerKey: string, markerData: MarkerModel){
+        this.markerBuffer.set(markerKey, markerData);
+        this.draw()
+    }
+
     public getModel(modelKey: string) : BaseModel | undefined{
         return this.modelBuffer.get(modelKey);
     }
 
+    public getMarker(markerKey: string) : MarkerModel | undefined{
+        return this.markerBuffer.get(markerKey);
+    }
+
     public async addModel(model: BaseModel, start: Coordinates, modelKey: string="", replacedModelKey: string="", isMarker: boolean=false): Promise<string> {
+        const buffer = isMarker? this.markerBuffer : this.modelBuffer;
+        
         this.lerpCode++;
 
         let lerpModel = new BaseModel()
@@ -80,15 +92,41 @@ export class WebGlWindow {
             model.positionBuffer.len,
             lerpModelData
         )
-
+            
         let lerpKey = this.lerpCode + "_lerp";
-
+        
         const key: string = modelKey === ""? (isMarker? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++) : modelKey;
         this.animateModel(lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
 
         await new Promise(resolve => {
             const checkBuffer = () => {
-                if (this.modelBuffer.get(key) !== undefined) resolve(key);
+                if (buffer.get(key) !== undefined) resolve(key);
+                else setTimeout(checkBuffer, 100);
+            };
+            checkBuffer();
+        });
+    
+        return key;
+    }
+
+    public async updateModel(targetModel: BaseModel, modelKey: string="", isMarker: boolean=false): Promise<string> {
+        const buffer = isMarker? this.markerBuffer : this.modelBuffer;
+
+        const originModel = buffer.get(modelKey);
+        if(originModel == null) return "";
+        if(targetModel.positionBuffer.len != originModel.positionBuffer.len) throw Error("Target and origin model does not have the same vertex count");
+        
+        this.lerpCode++;
+
+        let lerpModel = originModel;
+        let lerpKey = this.lerpCode + "_lerp";
+
+        const key: string = isMarker? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++;
+        this.animateModel(lerpKey, lerpModel, targetModel, key, modelKey, isMarker);
+
+        await new Promise(resolve => {
+            const checkBuffer = () => {
+                if (buffer.get(key) !== undefined) resolve(key);
                 else setTimeout(checkBuffer, 100);
             };
             checkBuffer();
@@ -167,6 +205,17 @@ export class WebGlWindow {
         });
     }
 
+    public detectMarker(x: number, y: number) : string {
+        let keys: Array<string> = []
+        this.markerBuffer.forEach((value, key) => {
+            try{
+                if(value.isInside(x, y)) keys.push(key);
+            } catch(any){}
+        })
+
+        return keys[0];
+    }
+
     public save(){
         const serialized : ExportData = {
             modelMapKey: this.modelMapKey,
@@ -216,6 +265,14 @@ export class WebGlWindow {
             lerpModel.positionBuffer.data[index] =
                 lerp(value, targetModel.positionBuffer.data[index], Config.LERP_MODIFIER);
         })
+        lerpModel.colorBuffer.data.forEach((value, index) => {
+            lerpModel.colorBuffer.data[index] =
+                lerp(value, targetModel.colorBuffer.data[index], Config.LERP_MODIFIER);
+        })
+        lerpModel.uniforms["u_matrix"].forEach((value, index) => {
+            lerpModel.uniforms["u_matrix"][index] =
+                lerp(value, targetModel.uniforms["u_matrix"][index], Config.LERP_MODIFIER);
+        });
 
         const buffer: Map<string, BaseModel> = isMarker? this.markerBuffer : this.modelBuffer; 
 
@@ -225,6 +282,12 @@ export class WebGlWindow {
 
         if(lerpModel.positionBuffer.data.every((value, index) => 
             Math.abs(value - targetModel.positionBuffer.data[index]) < Config.LERP_TOLERANCE)
+            &&
+            lerpModel.colorBuffer.data.every((value, index) => 
+            Math.abs(value - targetModel.colorBuffer.data[index]) < Config.LERP_TOLERANCE)
+            // &&
+            // lerpModel.uniforms["u_matrix"].every((value, index) => 
+            // Math.abs(value - targetModel.uniforms["u_matrix"][index]) < Config.LERP_TOLERANCE)
         ){
             buffer.set(modelKey, targetModel);
             if(replacedModelKey !== "") buffer.delete(replacedModelKey);
