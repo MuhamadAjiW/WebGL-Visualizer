@@ -1,7 +1,7 @@
 export enum ModelType {
-    NULL,
-    LINE,
-    SQUARE,
-    RECTANGLE,
-    POLYGON
+    NULL = "null",
+    LINE = "line",
+    SQUARE = "square",
+    RECTANGLE = "rectangle",
+    POLYGON = "polygon"
 }
