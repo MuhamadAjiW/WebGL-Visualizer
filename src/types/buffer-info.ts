@@ -10,8 +10,6 @@ export class BufferInfo {
     public transform(uniform : Uniforms) : BufferInfo {
         let retval = this.clone();
         let multiplier = Array.from(uniform.u_matrix);
-        console.log(multiplier);
-        console.log(retval.data);
 
         // TODO: Optimize
         for (let i = 0; i < this.data.length; i += 4) {
@@ -23,7 +21,6 @@ export class BufferInfo {
                 retval.data[i + j] = sum;
             }
         }
-        console.log(retval.data);
 
         return retval;
     }
