@@ -48,19 +48,22 @@ export class CanvasController {
         return this.markerBuffer.get(markerKey);
     }
 
-    public async addModel(model: BaseModel, start: Coordinates, modelKey: string="", replacedModelKey: string="", isMarker: boolean=false): Promise<string> {
+    public async addModel(model: BaseModel, start: Coordinates | null=null, modelKey: string="", replacedModelKey: string="", isMarker: boolean=false): Promise<string> {
+        const key: string = modelKey === ""? (isMarker? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++) : modelKey;
+        if(start == null) {
+            isMarker? this.setMarker(key, model as MarkerModel) : this.setModel(key, model);
+            return key;
+        }
+
         const buffer = isMarker? this.markerBuffer : this.modelBuffer;
         
         this.lerpCode++;
 
-        let lerpModel = new BaseModel()
-        lerpModel.colorBuffer = model.colorBuffer
-        lerpModel.type = model.type
-        lerpModel.uniforms = model.uniforms
+        let lerpModel = model.clone();
 
         let lerpModelData: number[] = []
         for (let index = 0; index < model.positionBuffer.len; index++) {
-            lerpModelData = lerpModelData.concat(start.getComponents())
+            lerpModelData = lerpModelData.concat(start!.getComponents())
         }
 
         lerpModel.positionBuffer = new BufferInfo(
@@ -70,7 +73,6 @@ export class CanvasController {
             
         let lerpKey = this.lerpCode + "_lerp";
         
-        const key: string = modelKey === ""? (isMarker? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++) : modelKey;
         this.animateModel(lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
 
         await new Promise(resolve => {
@@ -117,10 +119,7 @@ export class CanvasController {
 
         this.lerpCode++;
 
-        let lerpModel = new BaseModel()
-        lerpModel.colorBuffer = model.colorBuffer
-        lerpModel.type = model.type
-        lerpModel.uniforms = model.uniforms
+        let lerpModel = model.clone()
 
         let start = new Coordinates(
             model.positionBuffer.data[0],

@@ -9,13 +9,13 @@ export class BaseModel {
     public colorBuffer: BufferInfo =  new BufferInfo(0, []);
     public uniforms: Uniforms = {u_matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]};
 
-    public getBufferData(type: BufferType) : Array<Coordinates>{
+    public getBufferData(type: BufferType, transformed: boolean) : Array<Coordinates>{
         let retval: Array<Coordinates> = []
 
         let targetBuffer;
         switch (type) {
             case BufferType.COLOR: targetBuffer = this.colorBuffer; break;
-            case BufferType.POSITION: targetBuffer = this.positionBuffer.transform(this.uniforms); break;        
+            case BufferType.POSITION: targetBuffer = transformed? this.positionBuffer.transform(this.uniforms) : this.positionBuffer; break;        
             default:
                 throw Error("Invalid type buffer requested");
         }

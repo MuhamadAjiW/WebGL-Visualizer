@@ -29,9 +29,6 @@ export class PolygonModel extends BaseModel {
             colorData
         )
         this.convexHull();
-        // const [resPos, resCol] = hull(this.positionBuffer, this.colorBuffer);
-        // this.positionBuffer = resPos;
-        // this.colorBuffer = resCol;
     }
 
     private convexHull(): void{
