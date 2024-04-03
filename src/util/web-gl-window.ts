@@ -101,9 +101,6 @@ export class WebGlWindow {
             lerpModelData
         )
 
-
-        this.unsetModel(modelKey);
-        
         let lerpKey = this.lerpCode + "_lerp";
         this.animateModel(lerpKey, model, lerpModel, modelKey, modelKey);
     }
@@ -119,9 +116,6 @@ export class WebGlWindow {
     }
 
     public clear(){
-        // this.gl.clearColor(1, 1, 1, 1.0);
-        // this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        // this.modelBuffer.clear()
         this.modelBuffer.forEach((_, key) => {
             this.removeModel(key);
         })
@@ -153,22 +147,37 @@ export class WebGlWindow {
         const buffer = new Map<string, BaseModel>(parsed.modelBuffer);
         this.modelMapKey = parsed.modelMapKey
 
-        buffer.forEach((val, key) => {
-            let model = val;
-            model.colorBuffer.data = new Float32Array(Object.values(val.colorBuffer.data))
-            model.positionBuffer.data = new Float32Array(Object.values(val.positionBuffer.data))
-            
-            let startCoords = new Coordinates(
-                model.positionBuffer.data[0],
-                model.positionBuffer.data[1],
-                model.positionBuffer.data[2],
-                model.positionBuffer.data[3]
-            )
-
-            this.addModel(model, startCoords, key);
+        requestAnimationFrame(() => {
+            this.loadInternal(buffer)
         })
 
         this.draw();
+    }
+
+    private loadInternal(buffer: Map<string, BaseModel>){
+        if(this.modelBuffer.size == 0){
+            buffer.forEach((val, key) => {
+                let model = val;
+                model.colorBuffer.data = new Float32Array(Object.values(val.colorBuffer.data))
+                model.positionBuffer.data = new Float32Array(Object.values(val.positionBuffer.data))
+                
+                let startCoords = new Coordinates(
+                    model.positionBuffer.data[0],
+                    model.positionBuffer.data[1],
+                    model.positionBuffer.data[2],
+                    model.positionBuffer.data[3]
+                )
+    
+                this.addModel(model, startCoords, key);
+            })
+    
+            this.draw();
+            return;
+        }
+
+        requestAnimationFrame(() => {
+            this.loadInternal(buffer)
+        })
     }
 
     private animateModel(lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string, replacedModelKey: string=""){
