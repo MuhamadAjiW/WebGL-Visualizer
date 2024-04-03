@@ -58,8 +58,9 @@ export class CanvasController {
         const buffer = isMarker? this.markerBuffer : this.modelBuffer;
         
         this.lerpCode++;
+        const lerpKey = this.lerpCode + "_lerp";
+        const lerpModel = model.clone();
 
-        let lerpModel = model.clone();
 
         let lerpModelData: number[] = []
         for (let index = 0; index < model.positionBuffer.len; index++) {
@@ -71,7 +72,6 @@ export class CanvasController {
             lerpModelData
         )
             
-        let lerpKey = this.lerpCode + "_lerp";
         
         this.animateModel(lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
 
@@ -95,7 +95,7 @@ export class CanvasController {
         if(targetModel.positionBuffer.len != originModel.positionBuffer.len) throw Error("Target and origin model does not have the same vertex count");
 
         this.lerpCode++;
-        let lerpModel = originModel.clone();
+        const lerpModel = originModel.clone();
         let lerpKey = this.lerpCode + "_lerp";
 
         buffer.delete(modelKey);
@@ -116,13 +116,13 @@ export class CanvasController {
     }
 
     public async removeModel(modelKey: string="", isMarker=false) : Promise<void> {
-        let buffer = isMarker? this.markerBuffer : this.modelBuffer;
-        let model = buffer.get(modelKey);
+        const buffer = isMarker? this.markerBuffer : this.modelBuffer;
+        const model = buffer.get(modelKey);
         if(model == null) return;
 
         this.lerpCode++;
-
-        let lerpModel = model.clone()
+        const lerpKey = this.lerpCode + "_lerp";
+        const lerpModel = model.clone()
 
         let start = new Coordinates(
             model.positionBuffer.data[0],
@@ -141,7 +141,6 @@ export class CanvasController {
             lerpModelData
         )
 
-        let lerpKey = this.lerpCode + "_lerp";
         this.animateModel(lerpKey, model, lerpModel, modelKey, modelKey, isMarker);
 
         await new Promise<void>(resolve => {
