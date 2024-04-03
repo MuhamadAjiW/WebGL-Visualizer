@@ -1,9 +1,6 @@
-import { RectangleModel } from "./models/rectangle-model.ts";
-import { SquareModel } from "./models/square-model.ts";
-import { Coordinates } from "./types/coordinates.ts";
-import { ModelType } from "./types/enum/model-state.ts";
-import { MouseController } from "./util/click-controller.ts";
-import { WebGlWindow } from "./util/web-gl-window.ts";
+import { MouseController } from "./controller/mouse-controller"
+import { ModelType } from "./types/enum/model-state"
+import { CanvasController } from './controller/canvas-controller';
 
 // Button Listener
 const line_btn = document.getElementById("line-button") as HTMLButtonElement
@@ -16,7 +13,7 @@ const load_btn = document.getElementById("load-button") as HTMLButtonElement
 
 const file_input = document.getElementById("file-input") as HTMLInputElement
 
-const glWin = new WebGlWindow("canvas");
+const glWin = new CanvasController("canvas");
 const controller = new MouseController(glWin)
 
 line_btn.addEventListener("click", () => {
@@ -50,7 +47,7 @@ save_btn.addEventListener("click", () => {
     glWin.save();
 })
 
-file_input.addEventListener('change', async (event) => {
+file_input.addEventListener('change', async () => {
     if(file_input.files != null){
         const file = file_input.files[0]
         const fileReader = new FileReader();

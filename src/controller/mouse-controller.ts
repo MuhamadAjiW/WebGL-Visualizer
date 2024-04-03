@@ -6,20 +6,23 @@ import { RectangleModel } from "../models/rectangle-model";
 import { SquareModel } from "../models/square-model";
 import { Coordinates } from "../types/coordinates";
 import { ModelType } from "../types/enum/model-state";
-import { WebGlWindow } from "./web-gl-window";
 import { MarkerModel } from '../models/marker-model';
 import { BufferType } from "../types/enum/buffer-type";
+import { Observable } from "../types/events/web-gl-events";
+import { CanvasMouseEvent } from "../types/events/canvas-event";
+import { CanvasController } from "./canvas-controller";
 
-export class MouseController{
+export class MouseController extends Observable<CanvasMouseEvent> {
     public state: ModelType = ModelType.NULL
-    private glWin: WebGlWindow
+    private glWin: CanvasController
     private buffer: Array<Coordinates>
     private currentModelKey: string
     private currentMarkerKey: string
     private hoverMarkerKey: string
     private clickBlocked: boolean = false
     
-    constructor(glWin: WebGlWindow){
+    constructor(glWin: CanvasController){
+        super()
         this.glWin = glWin
         this.buffer = []
         this.currentModelKey = ""
@@ -35,7 +38,7 @@ export class MouseController{
     public async handleClick(event:MouseEvent) {
         if(this.clickBlocked) return
         if(this.state == ModelType.NULL) return
-
+        
         if(this.hoverMarkerKey != "") {
             if(this.currentMarkerKey != ""){
                 const marker = this.glWin.getMarker(this.currentMarkerKey)
