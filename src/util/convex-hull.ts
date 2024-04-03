@@ -13,8 +13,8 @@ export function hull(bufPos: BufferInfo, bufCol: BufferInfo): [BufferInfo, Buffe
         vColArr.push([colArr[i], colArr[i+1], colArr[i+2], colArr[i+3]])
     }
 
-    console.log("vPosArr", vPosArr);
-    console.log("vColArr", vColArr);
+    // console.log("vPosArr", vPosArr);
+    // console.log("vColArr", vColArr);
 
     // TODO: Handle duplicate vertices
     // let uniqueVertexArray = removeDuplicateVertex(vertexArray)
