@@ -56,6 +56,7 @@ export class MouseController{
 
         let coords = new Coordinates(event.offsetX, event.offsetY);
 
+        if(this.buffer.length == 0) this.setFocus(null)
         this.buffer.push(coords)
         
         let markerSizeOffset = Config.MARKER_SIZE/2;
@@ -63,13 +64,13 @@ export class MouseController{
             new Coordinates(coords.x - markerSizeOffset, coords.y - markerSizeOffset),
             new Coordinates(coords.x + markerSizeOffset, coords.y + markerSizeOffset)
         )
-
+        
         // TODO: Set using base color picker instead of default color
         let marker: MarkerModel = new MarkerModel(
             markerCoords, this.buffer.length - 1, new Coordinates(Config.DEFAULT_COLOR.x, Config.DEFAULT_COLOR.y, Config.DEFAULT_COLOR.z, Config.MARKER_ALPHA)
         )
         this.glWin.addModel(marker, markerCoords[0], "", "", true);
-
+            
         if(this.buffer.length < 2) return
 
         let model: BaseModel;
@@ -95,7 +96,7 @@ export class MouseController{
         } else{
             this.currentModelKey = await this.glWin.addModel(model, this.buffer[0], this.currentModelKey)
         }
-        this.setFocus(this.currentModelKey)
+        await this.setFocus(this.currentModelKey)
         this.clickBlocked = false;
     }
 
@@ -119,17 +120,19 @@ export class MouseController{
         }
     }
 
-    public async setFocus(key: string | null){
-        if(key == null){
+    public async setFocus(modelKey: string | null){
+        if(modelKey == null){
             this.currentModelKey = "";
+            this.currentMarkerKey = ""
+            this.hoverMarkerKey = ""
             this.glWin.clearMarker();
             return;
         }
         
-        let model = this.glWin.getModel(key);
+        let model = this.glWin.getModel(modelKey);
         if(model == null) return;
 
-        this.currentModelKey = key;
+        this.currentModelKey = modelKey;
         this.glWin.clearMarker();
 
         const coords: Array<Coordinates> = model.getBufferData(BufferType.POSITION);

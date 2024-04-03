@@ -33,6 +33,9 @@ export class WebGlWindow {
     
     constructor(id: string) {
         this.canvas = document.getElementById(id) as HTMLCanvasElement;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight * 85 / 100;
+        
         this.gl = this.canvas.getContext("webgl") as WebGL2RenderingContext;
         if (!this.gl) alert("No webgl support");
 
