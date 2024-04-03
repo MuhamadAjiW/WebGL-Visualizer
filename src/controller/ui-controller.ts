@@ -22,7 +22,9 @@ export class UIController extends Observer<CanvasMouseEvent> {
         // TODO: delete, this a dummy button for function testing
         const test_btn = document.getElementById("test-button") as HTMLButtonElement
         test_btn.addEventListener("click", () => {
+            // mouseCtrl.changeModelColor(new Coordinates(0, 0, 1, 1));
             mouseCtrl.changeMarkerColor(new Coordinates(0, 0, 1, 1));
+            // mouseCtrl.removeMarker();
         })
 
         line_btn.addEventListener("click", () => {

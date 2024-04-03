@@ -126,7 +126,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         
         let model = this.glWin.getModel(modelKey);
 
-        if(model == null) return;
+        if(model == null) throw Error("Invalid model requested");
 
         this.currentModelKey = modelKey;
         this.currentMarkerKey = ""
@@ -172,7 +172,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
     }
 
     public async removeMarker(){
-        if(this.currentMarkerKey == "" || this.currentModelKey == "") return;
+        if(this.currentMarkerKey == "" || this.currentModelKey == "") throw Error("Invalid model or marker in focus");;
         
         const model = this.glWin.getModel(this.currentModelKey);
         if(!model || model.type != ModelType.POLYGON) return;
@@ -196,7 +196,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
     }
 
     public async changeMarkerColor(color: Coordinates){
-        if(this.currentMarkerKey == "" || this.currentModelKey == "") return;
+        if(this.currentMarkerKey == "" || this.currentModelKey == "") throw Error("Invalid model or marker in focus");
         
         const model = this.glWin.getModel(this.currentModelKey);
         if(!model) return;
@@ -225,8 +225,24 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         }
     }
 
+    public async changeModelColor(color: Coordinates){
+        const model = this.glWin.getModel(this.currentModelKey);
+        if(!model) throw Error("Invalid model in focus");
+        
+        const newModel = model.clone();
+        for (let index = 0; index < newModel.colorBuffer.data.length; index += 4) {
+            newModel.colorBuffer.data[index + 0] = color.x;
+            newModel.colorBuffer.data[index + 1] = color.y;
+            newModel.colorBuffer.data[index + 2] = color.z;
+            newModel.colorBuffer.data[index + 3] = color.p;
+        }
+
+        this.currentModelKey = await this.glWin.updateModel(newModel, this.currentModelKey, false),
+        await this.setFocusModel(this.currentModelKey);
+    }
+
     public async getModelBufferData(){
-        if(this.currentModelKey == "") return;
+        if(this.currentModelKey == "") throw Error("Invalid model in focus");;
 
         const model = this.glWin.getModel(this.currentMarkerKey)
         if(!model) return;
