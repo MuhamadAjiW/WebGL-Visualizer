@@ -6,6 +6,7 @@ import { ExportData } from '../types/export-data';
 import { Config } from '../config';
 import { MarkerModel } from "../models/marker-model";
 import { WebGlController } from "./webgl-controller";
+import {ModelType} from "../types/enum/model-state.ts";
 
 export class CanvasController {    
     public canvas: HTMLCanvasElement;
@@ -164,6 +165,14 @@ export class CanvasController {
         this.clearMarker();
         this.modelBuffer.forEach((_, key) => {
             this.removeModel(key);
+        })
+
+        const values = Object.values(ModelType);
+        values.forEach((value) => {
+            if (value == ModelType.NULL) return;
+            const optGroup = document.getElementById(value + "-group") as HTMLOptGroupElement;
+            optGroup.style.display = "none";
+            optGroup.innerHTML = "";
         })
 
         await new Promise<void>(resolve => {
