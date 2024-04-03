@@ -1,6 +1,5 @@
 type Vector3 = [number, number, number];
-type Vector4 = [number, number, number, number];
-type Matrix4 = [
+export type Matrix4 = [
     number,
     number,
     number,

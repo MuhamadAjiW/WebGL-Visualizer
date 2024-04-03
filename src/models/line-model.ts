@@ -37,7 +37,7 @@ export class LineModel extends BaseModel {
         let targetBuffer;
         switch (type) {
             case BufferType.COLOR: targetBuffer = this.colorBuffer; break;
-            case BufferType.POSITION: targetBuffer = this.positionBuffer; break;        
+            case BufferType.POSITION: targetBuffer = this.positionBuffer.transform(this.uniforms); break;        
             default:
                 throw Error("Invalid type buffer requested");
         }

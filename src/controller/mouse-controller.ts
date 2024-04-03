@@ -14,10 +14,11 @@ import { CanvasController } from "./canvas-controller";
 
 export class MouseController extends Observable<CanvasMouseEvent> {
     public state: ModelType = ModelType.NULL
+    public currentModelKey: string
+    public currentMarkerKey: string
+    
     private glWin: CanvasController
     private buffer: Array<Coordinates>
-    private currentModelKey: string
-    private currentMarkerKey: string
     private hoverMarkerKey: string
     private clickBlocked: boolean = false
     

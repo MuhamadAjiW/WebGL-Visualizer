@@ -19,5 +19,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "deprecated/web-gl-window.ts"]
+  "include": ["src", "deprecated/web-gl-window.ts", "deprecated/m3.ts"]
 }
