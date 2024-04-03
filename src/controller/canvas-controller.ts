@@ -159,6 +159,8 @@ export class CanvasController {
             };
             checkBuffer();
         });
+
+        console.log(this.modelBuffer)
     }
 
     public async clear() : Promise<void> {
