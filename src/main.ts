@@ -70,8 +70,8 @@ load_btn.addEventListener("click", () => {
     file_input.click();
 })
 
-glWin.canvas.addEventListener("click", (event) =>{
-    controller.handleClick(event)
+glWin.canvas.addEventListener("click", async (event) => {
+    await controller.handleClick(event)
 })
 
 glWin.clear();

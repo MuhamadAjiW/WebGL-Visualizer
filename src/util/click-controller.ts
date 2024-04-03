@@ -13,6 +13,7 @@ export class ClickController{
     private glWin: WebGlWindow
     private buffer: Array<Coordinates>
     private currentKey: string
+    private blocked: boolean = false
     
     constructor(glWin: WebGlWindow){
         this.glWin = glWin
@@ -22,10 +23,11 @@ export class ClickController{
     
     public reset(){
         this.buffer = []
-        this.currentKey = ""
+        this.setFocus(null)
     }
 
     public async handleClick(event:MouseEvent) {
+        if(this.blocked) return
         if(this.state == ModelType.NULL) return
 
         let coords = new Coordinates(event.offsetX, event.offsetY);
@@ -60,16 +62,24 @@ export class ClickController{
                 model = new PolygonModel(this.buffer)
                 break;
         }
+        this.blocked = true;
         if(this.state != ModelType.POLYGON){
             this.currentKey = await this.glWin.addModel(model, this.buffer[0])
             this.buffer = []
-            this.setFocus(this.currentKey)
         } else{
             this.currentKey = await this.glWin.addModel(model, this.buffer[0], this.currentKey)
         }
+        this.setFocus(this.currentKey)
+        this.blocked = false;
     }
 
-    public setFocus(key: string){
+    public async setFocus(key: string | null){
+        if(key == null){
+            this.currentKey = "";
+            this.glWin.clearMarker();
+            return;
+        }
+        
         let model = this.glWin.getModel(key);
         if(model == null) return;
 
@@ -78,7 +88,7 @@ export class ClickController{
 
         let coords: Array<Coordinates> = model.getCoordinates();
 
-        coords.forEach((coord) => {
+        coords.forEach(async (coord) => {
             let markerSizeOffset = Config.MARKER_SIZE/2;
             let markerCoords = new Array<Coordinates>(
                 new Coordinates(coord.x - markerSizeOffset, coord.y - markerSizeOffset),
@@ -87,7 +97,7 @@ export class ClickController{
             let marker: SquareModel = new SquareModel(
                 markerCoords
             )
-            this.glWin.addModel(marker, markerCoords[0], "", "", true);
+            await this.glWin.addModel(marker, markerCoords[0], "", "", true);
         })
     }
 }
