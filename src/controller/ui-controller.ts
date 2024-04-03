@@ -70,6 +70,14 @@ export class UIController extends Observer<CanvasMouseEvent> {
             glWin.setModel(model_label.innerText, model);
         }
 
+        x_slider.onmousedown = async () => {
+            glWin.clearMarker();
+        }
+
+        x_slider.onmouseup = async () => {
+            await mouseCtrl.restoreFocusModel();
+        }
+
         y_slider.onchange = () => {
             y_slider_label.innerText = "Y Slider: " + y_slider.value;
             const model = glWin.getModel(model_label.innerText);
@@ -77,6 +85,14 @@ export class UIController extends Observer<CanvasMouseEvent> {
             const matrixTranslation = m4.translation(0, parseInt(y_slider.value), 0, model.uniforms.u_matrix as Matrix4);
             model.uniforms.u_matrix = m4.multiply(matrixTranslation, model.uniforms.u_matrix as Matrix4)
             glWin.setModel(model_label.innerText, model)
+        }
+
+        y_slider.onmousedown = async () => {
+            glWin.clearMarker();
+        }
+
+        y_slider.onmouseup = async () => {
+            await mouseCtrl.restoreFocusModel();
         }
 
         rotate_slider.onchange = () => {
@@ -92,6 +108,14 @@ export class UIController extends Observer<CanvasMouseEvent> {
             const matrixTranslationBack = m4.translation(tx, ty, 0, model.uniforms.u_matrix as Matrix4);
             model.uniforms.u_matrix = m4.multiply(matrixTranslationBack, model.uniforms.u_matrix as Matrix4)
             glWin.setModel(model_label.innerText, model)
+        }
+
+        rotate_slider.onmousedown = async () => {
+            glWin.clearMarker();
+        }
+
+        rotate_slider.onmouseup = async () => {
+            await mouseCtrl.restoreFocusModel();
         }
 
         clear_btn.addEventListener("click", () => {

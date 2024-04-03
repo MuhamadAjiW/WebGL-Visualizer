@@ -152,6 +152,10 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         })
     }
 
+    public async restoreFocusModel(){
+        this.setFocusModel(this.currentModelKey);
+    }
+
     public async setFocusMarker(){
         if(this.currentMarkerKey != ""){
             const marker = this.glWin.getMarker(this.currentMarkerKey)
