@@ -7,8 +7,10 @@ import {Config} from '../config';
 import {MarkerModel} from "../models/marker-model";
 import {WebGlController} from "./webgl-controller";
 import {AnimationType} from "../types/enum/animate-type";
+import { Observable } from "../types/events/observer-pattern";
+import { CanvasModelEvent } from "../types/events/canvas-model-event";
 
-export class CanvasController {
+export class CanvasController extends Observable<CanvasModelEvent> {
     public canvas: HTMLCanvasElement;
     private glController: WebGlController;
 
@@ -22,6 +24,7 @@ export class CanvasController {
 
 
     constructor(id: string) {
+        super();
         this.glController = new WebGlController(id);
         this.canvas = this.glController.canvas;
     }
@@ -73,20 +76,17 @@ export class CanvasController {
             lerpModelData
         )
 
-
         this.animateModel(AnimationType.POSITION, lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
-
-        if (!key.includes("Marker")) {
-            const optGroup = document.getElementById(model.type.valueOf() + "-group") as HTMLOptGroupElement;
-            const option = document.createElement("option");
-            option.text = key;
-            optGroup.style.display = "block";
-            optGroup.append(option)
-        }
 
         await new Promise(resolve => {
             const checkBuffer = () => {
-                if (buffer.get(key) !== undefined) resolve(key);
+                const model = buffer.get(key);
+                if (model !== undefined){
+                    if (!isMarker){
+                        this.emit(CanvasModelEvent.EVENT_MODEL_ADD, new CanvasModelEvent(this.modelBuffer, model, key, model.type));
+                    }
+                    resolve(key);
+                }
                 else setTimeout(checkBuffer, 100);
             };
             checkBuffer();
@@ -120,7 +120,13 @@ export class CanvasController {
 
         await new Promise(resolve => {
             const checkBuffer = () => {
-                if (buffer.get(key) !== undefined) resolve(key);
+                const model = buffer.get(key);
+                if (model !== undefined){
+                    if (!isMarker){
+                        this.emit(CanvasModelEvent.EVENT_MODEL_UPDATE, new CanvasModelEvent(this.modelBuffer, model, key, model.type));
+                    }
+                    resolve(key);
+                }
                 else setTimeout(checkBuffer, 100);
             };
             checkBuffer();
@@ -129,7 +135,7 @@ export class CanvasController {
         return key;
     }
 
-    public async removeModel(modelKey: string = "", isMarker = false): Promise<void> {
+    public async removeModel(modelKey: string, isMarker = false): Promise<void> {
         const buffer = isMarker ? this.markerBuffer : this.modelBuffer;
         const model = buffer.get(modelKey);
         if (model == null) return;
@@ -159,17 +165,16 @@ export class CanvasController {
 
         await new Promise<void>(resolve => {
             const checkBuffer = () => {
-                if (buffer.get(modelKey) == undefined) resolve();
+                if (buffer.get(modelKey) == undefined){
+                    if (!isMarker){
+                        this.emit(CanvasModelEvent.EVENT_MODEL_DELETE, new CanvasModelEvent(this.modelBuffer, null, modelKey, model.type));
+                    }
+                    resolve();
+                }
                 else setTimeout(checkBuffer, 100);
             };
             checkBuffer();
         });
-
-        if (!isMarker) {
-            const optGroup = document.getElementById(model.type.valueOf() + "-group") as HTMLOptGroupElement;
-            optGroup.style.display = "none";
-            optGroup.innerHTML = "";
-        }
     }
 
     public async clear(): Promise<void> {

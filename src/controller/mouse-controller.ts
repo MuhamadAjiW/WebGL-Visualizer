@@ -8,7 +8,7 @@ import {Coordinates} from "../types/coordinates";
 import {ModelType} from "../types/enum/model-state";
 import {MarkerModel} from '../models/marker-model';
 import {BufferType} from "../types/enum/buffer-type";
-import {Observable} from "../types/events/web-gl-events";
+import {Observable} from "../types/events/observer-pattern.ts";
 import {CanvasMouseEvent} from "../types/events/canvas-mouse-event";
 import {CanvasController} from "./canvas-controller";
 import { AnimationType } from "../types/enum/animate-type";
@@ -31,6 +31,16 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         this.currentModelKey = ""
         this.currentMarkerKey = ""
         this.hoverMarkerKey = ""
+    }
+
+    public setCurrentMarkerKey(key: string){
+        if(key != this.currentMarkerKey) this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE_MARKER, new CanvasMouseEvent(this.currentModelKey, key));
+        this.currentMarkerKey = key;
+    }
+
+    public setCurrentModelKey(key: string){
+        if(key != this.currentModelKey) this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, new CanvasMouseEvent(this.currentModelKey, key));
+        this.currentModelKey = key;
     }
 
     public reset() {
@@ -85,12 +95,10 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         }
         this.clickBlocked = true;
         if (this.state != ModelType.POLYGON) {
-            this.currentModelKey = await this.glWin.addModel(model, this.buffer[0]);
+            this.setCurrentModelKey(await this.glWin.addModel(model, this.buffer[0]));
             this.buffer = [];
         } else {
-            this.currentModelKey = await this.glWin.addModel(model, this.buffer[0], "", this.currentModelKey);
-            // this.buffer = model.getBufferData(BufferType.POSITION, false);
-            // console.log(model.positionBuffer);
+            this.setCurrentModelKey(await this.glWin.addModel(model, this.buffer[0], "", this.currentModelKey));
         }
         this.setFocusModel(this.currentModelKey);
         this.clickBlocked = false;
@@ -119,11 +127,10 @@ export class MouseController extends Observable<CanvasMouseEvent> {
 
     public async setFocusModel(modelKey: string | null) {
         if (modelKey == null) {
-            this.currentModelKey = "";
-            this.currentMarkerKey = ""
-            this.hoverMarkerKey = ""
+            this.setCurrentModelKey("");
+            this.setCurrentMarkerKey("");
+            this.hoverMarkerKey = "";
             this.glWin.clearMarker();
-            this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData())
             return;
         }
 
@@ -131,10 +138,9 @@ export class MouseController extends Observable<CanvasMouseEvent> {
 
         if (model == null) throw Error("Invalid model requested");
 
-        this.currentModelKey = modelKey;
-        this.currentMarkerKey = ""
+        this.setCurrentModelKey(modelKey);
+        this.setCurrentMarkerKey("");
         this.hoverMarkerKey = ""
-        this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData());
 
         this.glWin.clearMarker();
 
@@ -180,24 +186,21 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             }
         }
 
-        this.currentMarkerKey = this.hoverMarkerKey;
+        this.setCurrentMarkerKey(this.hoverMarkerKey);
         const marker = this.glWin.getMarker(this.hoverMarkerKey)
         if (marker != null) {
             marker.setActive(true);
             this.glWin.setMarker(this.currentMarkerKey, marker);
-
-            this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData());
         }
     }
 
     public async removeMarker() {
         if (this.currentMarkerKey == "" || this.currentModelKey == "") throw Error("Invalid model or marker in focus");
-        ;
 
         const model = this.glWin.getModel(this.currentModelKey);
         if (!model || model.type != ModelType.POLYGON) return;
 
-        const marker = this.glWin.getMarker(this.currentMarkerKey)
+        const marker = this.glWin.getMarker(this.currentMarkerKey);
         if (marker != null) {
             this.buffer = model.getBufferData(BufferType.POSITION, false);
 
@@ -210,7 +213,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             this.glWin.removeModel(this.currentMarkerKey, true);
             this.glWin.removeModel(this.currentModelKey, false);
 
-            this.currentModelKey = newcode;
+            this.setCurrentModelKey(newcode);
             this.setFocusModel(this.currentModelKey);
         }
     }
@@ -221,7 +224,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         const model = this.glWin.getModel(this.currentModelKey);
         if (!model) return;
 
-        const marker = this.glWin.getMarker(this.currentMarkerKey)
+        const marker = this.glWin.getMarker(this.currentMarkerKey);
         if (marker != null) {
             const newModel = model.clone();
             const offset = marker.index * 4;
@@ -238,10 +241,8 @@ export class MouseController extends Observable<CanvasMouseEvent> {
                 this.glWin.updateModel(AnimationType.COLOR, newMarker, this.currentMarkerKey, true)
             ]);
 
-            this.currentModelKey = modelPromise;
-            this.currentMarkerKey = markerPromise;
-
-            this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData())
+            this.setCurrentModelKey(modelPromise);
+            this.setCurrentMarkerKey(markerPromise);
         }
     }
 
@@ -257,21 +258,16 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             newModel.colorBuffer.data[index + 3] = color.a;
         }
 
-        this.currentModelKey = await this.glWin.updateModel(AnimationType.COLOR, newModel, this.currentModelKey, false),
-            await this.setFocusModel(this.currentModelKey);
+        this.setCurrentModelKey(await this.glWin.updateModel(AnimationType.COLOR, newModel, this.currentModelKey, false));
+        await this.setFocusModel(this.currentModelKey);
     }
 
     public async getModelBufferData() {
         if (this.currentModelKey == "") throw Error("Invalid model in focus");
-        ;
 
         const model = this.glWin.getModel(this.currentMarkerKey)
         if (!model) return;
 
         this.buffer = model.getBufferData(BufferType.POSITION, false);
-    }
-
-    private getCanvasEventData(): CanvasMouseEvent {
-        return new CanvasMouseEvent(this.currentModelKey, this.currentMarkerKey);
     }
 }
