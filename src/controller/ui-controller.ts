@@ -77,12 +77,15 @@ export class UIController {
                 const model = glWin.getModel(model_label.innerText);
 
                 x_slider.value = model!.x_translation.toString();
+                matrixTranslationX = parseInt(x_slider.value) == 0 ? id4 : m4.translation(parseInt(x_slider.value), 0, 0);
                 x_slider_label.innerText = "X Slider: " + x_slider.value;
 
                 y_slider.value = model!.y_translation.toString();
+                matrixTranslationY = parseInt(y_slider.value) == 0 ? id4 : m4.translation(0, parseInt(y_slider.value), 0);
                 y_slider_label.innerText = "Y Slider: " + y_slider.value;
 
                 rotate_slider.value = (model!.z_rotation * 180 / Math.PI).toString();
+                matrixRotationSlider = m4.zRotation(parseInt(rotate_slider.value) * Math.PI / (180));
                 rotate_slider_label.innerText = "Rotate Slider: " + rotate_slider.value;
 
                 slider_container.style.visibility = "visible";
