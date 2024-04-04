@@ -7,7 +7,7 @@ export class BufferInfo {
         this.data = new Float32Array(data);
     }
 
-    public transform(uniform : Uniforms) : BufferInfo {
+    public transform(uniform: Uniforms): BufferInfo {
         let retval = this.clone();
         let multiplier = Array.from(uniform.u_matrix);
 
@@ -15,7 +15,7 @@ export class BufferInfo {
         for (let i = 0; i < this.data.length; i += 4) {
             for (let j = 0; j < 4; j++) {
                 let sum = 0;
-                for(let k = 0; k < 4; k++){
+                for (let k = 0; k < 4; k++) {
                     sum += multiplier[j + k * 4] * this.data[i + k];
                 }
                 retval.data[i + j] = sum;
@@ -25,7 +25,7 @@ export class BufferInfo {
         return retval;
     }
 
-    public clone() : BufferInfo{
+    public clone(): BufferInfo {
         return new BufferInfo(this.len, Array.from(this.data));
     }
 }

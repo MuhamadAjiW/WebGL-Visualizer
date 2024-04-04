@@ -1,12 +1,12 @@
-import { BufferInfo } from "../types/buffer-info";
-import { Coordinates } from "../types/coordinates";
-import { ModelType } from "../types/enum/model-state";
-import { BaseModel } from "./base-model";
+import {BufferInfo} from "../types/buffer-info";
+import {Coordinates} from "../types/coordinates";
+import {ModelType} from "../types/enum/model-state";
+import {BaseModel} from "./base-model";
 
 export class RectangleModel extends BaseModel {
     constructor(points: Array<Coordinates>) {
         super();
-        if(points.length != 2) throw Error("Points in rectangle is not 2")
+        if (points.length != 2) throw Error("Points in rectangle is not 2")
         this.type = ModelType.RECTANGLE
 
         this.positionBuffer = new BufferInfo(

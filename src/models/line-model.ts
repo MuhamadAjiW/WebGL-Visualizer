@@ -1,13 +1,13 @@
-import { BufferInfo } from "../types/buffer-info";
-import { Coordinates } from "../types/coordinates";
-import { BufferType } from "../types/enum/buffer-type";
-import { ModelType } from "../types/enum/model-state";
-import { BaseModel } from "./base-model";
+import {BufferInfo} from "../types/buffer-info";
+import {Coordinates} from "../types/coordinates";
+import {BufferType} from "../types/enum/buffer-type";
+import {ModelType} from "../types/enum/model-state";
+import {BaseModel} from "./base-model";
 
 export class LineModel extends BaseModel {
     constructor(points: Array<Coordinates>) {
         super();
-        if(points.length != 2) throw Error("Points in line is not 2")
+        if (points.length != 2) throw Error("Points in line is not 2")
         this.type = ModelType.LINE
 
         this.positionBuffer = new BufferInfo(
@@ -30,14 +30,18 @@ export class LineModel extends BaseModel {
             ]
         )
     }
-    
-    public override getBufferData(type: BufferType) : Array<Coordinates>{
+
+    public override getBufferData(type: BufferType): Array<Coordinates> {
         let retval: Array<Coordinates> = []
 
         let targetBuffer;
         switch (type) {
-            case BufferType.COLOR: targetBuffer = this.colorBuffer; break;
-            case BufferType.POSITION: targetBuffer = this.positionBuffer.transform(this.uniforms); break;        
+            case BufferType.COLOR:
+                targetBuffer = this.colorBuffer;
+                break;
+            case BufferType.POSITION:
+                targetBuffer = this.positionBuffer.transform(this.uniforms);
+                break;
             default:
                 throw Error("Invalid type buffer requested");
         }
@@ -45,9 +49,9 @@ export class LineModel extends BaseModel {
         for (let index = 0; index < 8; index += 4) {
             let coords = new Coordinates(
                 targetBuffer.data[index],
-                targetBuffer.data[index+1],
-                targetBuffer.data[index+2],
-                targetBuffer.data[index+3]
+                targetBuffer.data[index + 1],
+                targetBuffer.data[index + 2],
+                targetBuffer.data[index + 3]
             )
             retval.push(coords)
         }

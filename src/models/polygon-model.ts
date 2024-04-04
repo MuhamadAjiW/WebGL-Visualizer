@@ -1,15 +1,15 @@
-import { BufferInfo } from "../types/buffer-info";
-import { Coordinates } from "../types/coordinates";
-import { ModelType } from "../types/enum/model-state";
-import { hull } from "../util/convex-hull";
-import { BaseModel } from "./base-model";
+import {BufferInfo} from "../types/buffer-info";
+import {Coordinates} from "../types/coordinates";
+import {ModelType} from "../types/enum/model-state";
+import {hull} from "../util/convex-hull";
+import {BaseModel} from "./base-model";
 
 export class PolygonModel extends BaseModel {
     constructor(points: Array<Coordinates>) {
         super();
-        if(points.length < 4) throw Error("Points in polygon is less than 3")
+        if (points.length < 4) throw Error("Points in polygon is less than 3")
         this.type = ModelType.POLYGON
-    
+
         let positionData: number[] = []
         for (let index = 0; index < points.length; index++) {
             positionData = positionData.concat(points[index].getComponents())
@@ -31,7 +31,7 @@ export class PolygonModel extends BaseModel {
         this.convexHull();
     }
 
-    private convexHull(): void{
+    private convexHull(): void {
         const [resPos, resCol] = hull(this.positionBuffer, this.colorBuffer);
         this.positionBuffer = resPos;
         this.colorBuffer = resCol;

@@ -3,9 +3,11 @@ interface UniformSetters {
         | ((v: Iterable<number>) => void)
         | ((v: number) => void);
 }
+
 interface AttribSetters {
     [AttribName: string]: (attrib: Attrib) => void;
 }
+
 interface Attrib {
     buffer: WebGLBuffer;
     numComponents: GLint;

@@ -1,5 +1,5 @@
-import { Coordinates } from "../types/coordinates";
-import { SquareModel } from "./square-model";
+import {Coordinates} from "../types/coordinates";
+import {SquareModel} from "./square-model";
 
 export class MarkerModel extends SquareModel {
     public index: number;
@@ -19,24 +19,24 @@ export class MarkerModel extends SquareModel {
         this.colorBuffer.data = new Float32Array(colorData);
     }
 
-    public isInside(x: number, y: number) : boolean{
+    public isInside(x: number, y: number): boolean {
         let upperLimitX;
         let lowerLimitX;
         let upperLimitY;
         let lowerLimitY;
 
-        if(this.positionBuffer.data[0] > this.positionBuffer.data[8]){
+        if (this.positionBuffer.data[0] > this.positionBuffer.data[8]) {
             upperLimitX = this.positionBuffer.data[0];
             lowerLimitX = this.positionBuffer.data[8];
-        } else{
+        } else {
             upperLimitX = this.positionBuffer.data[8];
             lowerLimitX = this.positionBuffer.data[0];
         }
 
-        if(this.positionBuffer.data[1] > this.positionBuffer.data[9]){
+        if (this.positionBuffer.data[1] > this.positionBuffer.data[9]) {
             upperLimitY = this.positionBuffer.data[1];
             lowerLimitY = this.positionBuffer.data[9];
-        } else{
+        } else {
             upperLimitY = this.positionBuffer.data[9];
             lowerLimitY = this.positionBuffer.data[1];
         }
@@ -44,7 +44,7 @@ export class MarkerModel extends SquareModel {
         return (x < upperLimitX && x > lowerLimitX && y < upperLimitY && y > lowerLimitY);
     }
 
-    public clone() : MarkerModel {
+    public clone(): MarkerModel {
         let retval = new MarkerModel(
             [
                 new Coordinates(this.positionBuffer.data[0], this.positionBuffer.data[1], this.positionBuffer.data[2], this.positionBuffer.data[3]),
@@ -65,19 +65,19 @@ export class MarkerModel extends SquareModel {
         this.colorBuffer.data = new Float32Array(colorData);
     }
 
-    public highlight(){
+    public highlight() {
         const newColor = new Coordinates(this.color.x, this.color.y, this.color.z, 1);
         this.setColor(newColor);
     }
-    
-    public unhighlight(){
+
+    public unhighlight() {
         const newColor = new Coordinates(this.color.x, this.color.y, this.color.z, 0.8);
         this.setColor(newColor);
     }
 
-    public setActive(status: boolean){
+    public setActive(status: boolean) {
         this.active = status;
-        if(status) this.highlight();
+        if (status) this.highlight();
         else this.unhighlight();
     }
 

@@ -1,4 +1,4 @@
-import { BufferInfo } from "../types/buffer-info";
+import {BufferInfo} from "../types/buffer-info";
 
 export function hull(bufPos: BufferInfo, bufCol: BufferInfo): [BufferInfo, BufferInfo] {
 
@@ -8,16 +8,10 @@ export function hull(bufPos: BufferInfo, bufCol: BufferInfo): [BufferInfo, Buffe
     let vPosArr: number[][] = []
     let vColArr: number[][] = []
 
-    for (let i = 0; i< posArr.length; i+=4) {
-        vPosArr.push([posArr[i], posArr[i+1]])
-        vColArr.push([colArr[i], colArr[i+1], colArr[i+2], colArr[i+3]])
+    for (let i = 0; i < posArr.length; i += 4) {
+        vPosArr.push([posArr[i], posArr[i + 1]])
+        vColArr.push([colArr[i], colArr[i + 1], colArr[i + 2], colArr[i + 3]])
     }
-
-    // console.log("vPosArr", vPosArr);
-    // console.log("vColArr", vColArr);
-
-    // TODO: Handle duplicate vertices
-    // let uniqueVertexArray = removeDuplicateVertex(vertexArray)
 
     let leftMostIndex = leftMostVertIndex(vPosArr)
 
@@ -26,7 +20,7 @@ export function hull(bufPos: BufferInfo, bufCol: BufferInfo): [BufferInfo, Buffe
 
     let pOH = vPosArr[leftMostIndex]
     let pOHIndex = leftMostIndex
-    
+
     let end = vPosArr[0]
     let endIndex = 0
     do {
@@ -59,10 +53,6 @@ export function hull(bufPos: BufferInfo, bufCol: BufferInfo): [BufferInfo, Buffe
     return [positionBuffer, colorBuffer]
 }
 
-function removeDuplicateVertex(posBuf: BufferInfo, colBuf: BufferInfo) {
-    
-}
-
 function leftMostVertIndex(arr: Number[][]): number {
     let leftMost = arr[0]
     let index = 0
@@ -82,7 +72,7 @@ function isLeftOfLine(sourceVertex: Array<number>, comparisonVertex: Array<numbe
     return cp > 0
 }
 
-function crossProduct (a: Array<number>, b: Array<number>) {
+function crossProduct(a: Array<number>, b: Array<number>) {
     return a[0] * b[1] - a[1] * b[0]
 }
 

@@ -1,4 +1,4 @@
-import { Coordinates } from "./types/coordinates";
+import {Coordinates} from "./types/coordinates";
 
 export const Config = {
     MARKER_SIZE: 15,
