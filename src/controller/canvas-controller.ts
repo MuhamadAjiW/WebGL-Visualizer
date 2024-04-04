@@ -78,12 +78,14 @@ export class CanvasController extends Observable<CanvasModelEvent> {
 
         this.animateModel(AnimationType.POSITION, lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
 
+        const replacedModel = buffer.get(replacedModelKey);
         await new Promise(resolve => {
             const checkBuffer = () => {
                 const model = buffer.get(key);
                 if (model !== undefined){
                     if (!isMarker){
                         this.emit(CanvasModelEvent.EVENT_MODEL_ADD, new CanvasModelEvent(this.modelBuffer, model, key, model.type));
+                        if(replacedModel != null) this.emit(CanvasModelEvent.EVENT_MODEL_DELETE, new CanvasModelEvent(this.modelBuffer, replacedModel, replacedModelKey, replacedModel.type))
                     }
                     resolve(key);
                 }
@@ -123,7 +125,8 @@ export class CanvasController extends Observable<CanvasModelEvent> {
                 const model = buffer.get(key);
                 if (model !== undefined){
                     if (!isMarker){
-                        this.emit(CanvasModelEvent.EVENT_MODEL_UPDATE, new CanvasModelEvent(this.modelBuffer, model, key, model.type));
+                        this.emit(CanvasModelEvent.EVENT_MODEL_ADD, new CanvasModelEvent(this.modelBuffer, model, key, model.type));
+                        this.emit(CanvasModelEvent.EVENT_MODEL_DELETE, new CanvasModelEvent(this.modelBuffer, originModel, modelKey, originModel.type))
                     }
                     resolve(key);
                 }

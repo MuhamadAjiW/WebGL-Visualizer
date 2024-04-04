@@ -204,10 +204,12 @@ export class UIController {
         this.eventListener.subscribe<CanvasMouseEvent>(CanvasMouseEvent, mouseCtrl);
 
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MARKER, (data) => {
-            model_label.innerText = data.modelFocusKey ? data.modelFocusKey : "none";
+            console.log(`Marker focus set to ${data.markerFocusKey}`);
+            model_label.innerText = data.markerFocusKey ? data.markerFocusKey : "none";
         })
 
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, (data) => {
+            console.log(`Model focus set to ${data.modelFocusKey}`);
             model_label.innerText = data.modelFocusKey ? data.modelFocusKey : "none";
             model_dropdown.value = data.modelFocusKey ? data.modelFocusKey : "";
         })
