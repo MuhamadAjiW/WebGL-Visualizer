@@ -206,7 +206,7 @@ export class UIController {
 
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MARKER, (data) => {
             console.log(`Marker focus set to ${data.markerFocusKey}`);
-            model_label.innerText = data.markerFocusKey ? data.markerFocusKey : "none";
+            marker_label.innerText = data.markerFocusKey ? data.markerFocusKey : "none";
         })
 
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, (data) => {

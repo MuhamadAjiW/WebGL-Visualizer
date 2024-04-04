@@ -114,9 +114,11 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         const lerpModel = originModel.clone();
         let lerpKey = this.lerpCode + "_lerp";
 
-        buffer.delete(modelKey);
+        const ghostBuffer = MarkerModel.ghost;
+        buffer.set(modelKey, ghostBuffer);
         this.draw();
 
+        console.log("Updating model");
         const key: string = isMarker ? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++;
         this.animateModel(type, lerpKey, lerpModel, targetModel, key, modelKey, isMarker);
 
@@ -124,9 +126,11 @@ export class CanvasController extends Observable<CanvasModelEvent> {
             const checkBuffer = () => {
                 const model = buffer.get(key);
                 if (model !== undefined){
+                    buffer.delete(key);
+                    buffer.set(modelKey,targetModel);
+                    this.draw();
                     if (!isMarker){
-                        this.emit(CanvasModelEvent.EVENT_MODEL_ADD, new CanvasModelEvent(this.modelBuffer, model, key, model.type));
-                        this.emit(CanvasModelEvent.EVENT_MODEL_DELETE, new CanvasModelEvent(this.modelBuffer, originModel, modelKey, originModel.type))
+                        this.emit(CanvasModelEvent.EVENT_MODEL_UPDATE, new CanvasModelEvent(this.modelBuffer, targetModel, modelKey, targetModel.type))
                     }
                     resolve(key);
                 }
@@ -135,7 +139,7 @@ export class CanvasController extends Observable<CanvasModelEvent> {
             checkBuffer();
         });
 
-        return key;
+        return modelKey;
     }
 
     public async removeModel(modelKey: string, isMarker = false): Promise<void> {

@@ -3,6 +3,7 @@ import { ModelType } from "../enum/model-state";
 
 export class CanvasModelEvent {
     static EVENT_MODEL_ADD: string = "model_add";
+    static EVENT_MODEL_UPDATE: string = "model_update";
     static EVENT_MODEL_DELETE: string = "model_delete";
 
     public modelBuffer: Map<string, BaseModel>;

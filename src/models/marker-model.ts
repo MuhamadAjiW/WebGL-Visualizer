@@ -3,6 +3,8 @@ import {SquareModel} from "./square-model";
 import {Color} from "../types/color.ts";
 
 export class MarkerModel extends SquareModel {
+    static ghost = new SquareModel([new Coordinates(), new Coordinates()]);
+    
     public index: number;
     public color: Color;
     private active: boolean;
