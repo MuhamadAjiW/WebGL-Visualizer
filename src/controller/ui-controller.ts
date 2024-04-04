@@ -6,6 +6,7 @@ import {MouseController} from "./mouse-controller";
 import {m4, Matrix4} from "../util/m4.ts";
 import {id4} from '../util/m4';
 import { CanvasModelEvent } from "../types/events/canvas-model-event.ts";
+import { Color } from "../types/color.ts";
 
 export class UIController {
     private eventListener: EventListener = new EventListener();
@@ -40,7 +41,7 @@ export class UIController {
 
         test_btn.addEventListener("click", () => {
             // mouseCtrl.changeModelColor(new Coordinates(0, 0, 1, 1));
-            // mouseCtrl.changeMarkerColor(new Coordinates(0, 0, 1, 1));
+            mouseCtrl.changeMarkerColor(new Color(0, 0, 1, 1));
             // mouseCtrl.removeMarker();
             // glWin.clearMarker(true);
         })
@@ -211,7 +212,14 @@ export class UIController {
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, (data) => {
             console.log(`Model focus set to ${data.modelFocusKey}`);
             model_label.innerText = data.modelFocusKey ? data.modelFocusKey : "none";
-            model_dropdown.value = data.modelFocusKey ? data.modelFocusKey : "";
+            
+            const old_value = model_dropdown.value;
+            const new_value = data.modelFocusKey ? data.modelFocusKey : "";
+
+            if(old_value != new_value){
+                model_dropdown.value = new_value;
+                model_dropdown.dispatchEvent(new Event("change"));
+            }
         })
 
         this.eventListener.listen<CanvasModelEvent>(CanvasModelEvent, CanvasModelEvent.EVENT_MODEL_ADD, (data) => {
