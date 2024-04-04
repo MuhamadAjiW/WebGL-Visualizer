@@ -1,13 +1,13 @@
-import { Coordinates } from "../types/coordinates";
-import { ModelType } from "../types/enum/model-state";
-import { CanvasMouseEvent } from "../types/events/canvas-mouse-event";
-import { Observer } from "../types/events/web-gl-events";
-import { CanvasController } from "./canvas-controller";
-import { MouseController } from "./mouse-controller";
+import {ModelType} from "../types/enum/model-state";
+import {CanvasMouseEvent} from "../types/events/canvas-mouse-event";
+import {Observer} from "../types/events/web-gl-events";
+import {CanvasController} from "./canvas-controller";
+import {MouseController} from "./mouse-controller";
 import {m4, Matrix4} from "../util/m4.ts";
+import {id4} from '../util/m4';
 
 export class UIController extends Observer<CanvasMouseEvent> {
-    constructor(glWin: CanvasController, mouseCtrl: MouseController){
+    constructor(glWin: CanvasController, mouseCtrl: MouseController) {
         super();
         const line_btn = document.getElementById("line-button") as HTMLButtonElement
         const square_btn = document.getElementById("square-button") as HTMLButtonElement
@@ -28,29 +28,36 @@ export class UIController extends Observer<CanvasMouseEvent> {
         const rotate_slider = document.getElementById("rotate-slider") as HTMLInputElement
         const rotate_slider_label = document.getElementById("rotate-slider-label") as HTMLLabelElement
 
+        let matrixTranslationX: Matrix4 = id4;
+        let matrixTranslationY: Matrix4 = id4;
+        let matrixRotationSlider: Matrix4 = id4;
+        let matrixRotationMain: Matrix4 = id4;
+
         // TODO: delete, this a dummy button for function testing
         const test_btn = document.getElementById("test-button") as HTMLButtonElement
+
         test_btn.addEventListener("click", () => {
             // mouseCtrl.changeModelColor(new Coordinates(0, 0, 1, 1));
-            mouseCtrl.changeMarkerColor(new Coordinates(0, 0, 1, 1));
+            // mouseCtrl.changeMarkerColor(new Coordinates(0, 0, 1, 1));
             // mouseCtrl.removeMarker();
+            // glWin.clearMarker(true);
         })
 
         line_btn.onclick = () => {
             mouseCtrl.state = ModelType.LINE;
             mouseCtrl.reset();
         }
-        
+
         square_btn.onclick = () => {
             mouseCtrl.state = ModelType.SQUARE;
             mouseCtrl.reset();
         }
-        
+
         rectangle_btn.onclick = () => {
             mouseCtrl.state = ModelType.RECTANGLE;
             mouseCtrl.reset();
         }
-        
+
         polygon_btn.onclick = () => {
             mouseCtrl.state = ModelType.POLYGON;
             mouseCtrl.reset();
@@ -59,7 +66,7 @@ export class UIController extends Observer<CanvasMouseEvent> {
         model_dropdown.onchange = () => {
             model_label.innerText = model_dropdown.value;
             slider_container.style.visibility = "visible";
-            if (model_dropdown.value === ""){
+            if (model_dropdown.value === "") {
                 slider_container.style.visibility = "hidden";
                 return;
             } else {
@@ -67,17 +74,36 @@ export class UIController extends Observer<CanvasMouseEvent> {
             }
         }
 
-        x_slider.oninput = () => {
-            x_slider_label.innerText = "X Slider: " + x_slider.value;
+        const showMatrix = () => {
             const model = glWin.getModel(model_label.innerText);
             if (model == null) return;
-            const matrixTranslation = m4.translation(parseInt(x_slider.value), 0, 0, model.uniforms.u_matrix as Matrix4);
-            model.uniforms.u_matrix = m4.multiply(matrixTranslation, model.uniforms.u_matrix as Matrix4)
+
+            let u_matrix: Matrix4 = id4;
+
+            const center = model.getCenter();
+            const matrixRotationT1 = m4.translation(-center.x, -center.y, 0);
+            const matrixRotationT2 = m4.translation(center.x, center.y, 0);
+
+            u_matrix = m4.multiply(matrixRotationT1, u_matrix);
+            u_matrix = m4.multiply(matrixRotationSlider, u_matrix);
+            u_matrix = m4.multiply(matrixRotationT2, u_matrix);
+
+            u_matrix = m4.multiply(matrixRotationMain, u_matrix);
+            u_matrix = m4.multiply(matrixTranslationX, u_matrix);
+            u_matrix = m4.multiply(matrixTranslationY, u_matrix);
+
+            model.uniforms.u_matrix = u_matrix;
             glWin.setModel(model_label.innerText, model);
         }
 
+        x_slider.oninput = () => {
+            x_slider_label.innerText = "X Slider: " + x_slider.value;
+            matrixTranslationX = parseInt(x_slider.value) == 0 ? id4 : m4.translation(parseInt(x_slider.value), 0, 0);
+            showMatrix();
+        }
+
         x_slider.onmousedown = async () => {
-            glWin.clearMarker();
+            await glWin.clearMarker();
         }
 
         x_slider.onmouseup = async () => {
@@ -86,15 +112,12 @@ export class UIController extends Observer<CanvasMouseEvent> {
 
         y_slider.oninput = () => {
             y_slider_label.innerText = "Y Slider: " + y_slider.value;
-            const model = glWin.getModel(model_label.innerText);
-            if (model == null) return;
-            const matrixTranslation = m4.translation(0, parseInt(y_slider.value), 0, model.uniforms.u_matrix as Matrix4);
-            model.uniforms.u_matrix = m4.multiply(matrixTranslation, model.uniforms.u_matrix as Matrix4)
-            glWin.setModel(model_label.innerText, model)
+            matrixTranslationY = parseInt(y_slider.value) == 0 ? id4 : m4.translation(0, parseInt(y_slider.value), 0);
+            showMatrix();
         }
 
         y_slider.onmousedown = async () => {
-            glWin.clearMarker();
+            await glWin.clearMarker();
         }
 
         y_slider.onmouseup = async () => {
@@ -105,19 +128,12 @@ export class UIController extends Observer<CanvasMouseEvent> {
             rotate_slider_label.innerText = "Rotate Slider " + rotate_slider.value;
             const model = glWin.getModel(model_label.innerText);
             if (model == null) return;
-            const tx = model.uniforms.u_matrix[12];
-            const ty = model.uniforms.u_matrix[13];
-            const matrixTranslation = m4.translation(-tx, -ty, 0, model.uniforms.u_matrix as Matrix4);
-            model.uniforms.u_matrix = m4.multiply(matrixTranslation, model.uniforms.u_matrix as Matrix4)
-            const matrixRotation = m4.zRotation(parseInt(rotate_slider.value) /180, model.uniforms.u_matrix as Matrix4);
-            model.uniforms.u_matrix = m4.multiply(matrixRotation, model.uniforms.u_matrix as Matrix4)
-            const matrixTranslationBack = m4.translation(tx, ty, 0, model.uniforms.u_matrix as Matrix4);
-            model.uniforms.u_matrix = m4.multiply(matrixTranslationBack, model.uniforms.u_matrix as Matrix4)
-            glWin.setModel(model_label.innerText, model)
+            matrixRotationSlider = m4.zRotation(parseInt(rotate_slider.value) * Math.PI / (180));
+            showMatrix();
         }
 
         rotate_slider.onmousedown = async () => {
-            glWin.clearMarker();
+            await glWin.clearMarker(true);
         }
 
         rotate_slider.onmouseup = async () => {
@@ -130,27 +146,27 @@ export class UIController extends Observer<CanvasMouseEvent> {
             file_input.value = '';
             mouseCtrl.reset();
         }
-        
+
         save_btn.onclick = () => {
             glWin.save();
         }
-        
+
         file_input.onchange = async () => {
-            if(file_input.files != null){
+            if (file_input.files != null) {
                 const file = file_input.files[0]
                 const fileReader = new FileReader();
-        
+
                 fileReader.onload = function (event) {
-                    if(event.target != null){
+                    if (event.target != null) {
                         const fileContents = event.target.result;
                         glWin.load(fileContents as string);
                     }
                 };
-        
+
                 fileReader.readAsText(file)
             }
         }
-        
+
         load_btn.onclick = () => {
             file_input.click();
         }
@@ -158,18 +174,19 @@ export class UIController extends Observer<CanvasMouseEvent> {
         glWin.canvas.onmousedown = async (event) => {
             await mouseCtrl.handleClick(event);
         }
-        
+
         glWin.canvas.onmousemove = (event) => {
             mouseCtrl.handleHover(event);
         }
-        
-        
+
+
         this.subscribe(mouseCtrl);
         this.addEventListener(CanvasMouseEvent.EVENT_FOCUS_CHANGE, (data) => {
-            model_label.innerText = data.modelFocusKey? data.modelFocusKey : "none";
-            marker_label.innerText = data.markerFocusKey? data.markerFocusKey : "none";
+            model_label.innerText = data.modelFocusKey ? data.modelFocusKey : "none";
+            marker_label.innerText = data.markerFocusKey ? data.markerFocusKey : "none";
+            model_dropdown.value = data.modelFocusKey ? data.modelFocusKey : "";
         })
-        
+
         glWin.clear();
-    }   
+    }
 }

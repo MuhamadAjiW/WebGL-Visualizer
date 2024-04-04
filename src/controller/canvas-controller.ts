@@ -181,18 +181,32 @@ export class CanvasController {
         });
     }
 
-    public async clearMarker(){
-        this.markerBuffer.forEach((_, key) => {
-            this.removeModel(key, true);
-        })
+    public async clearMarker(exceptActive: boolean=false) {
+        if (exceptActive) {
+            this.markerBuffer.forEach((value, key) => {
+                if (!value.isActive()) this.removeModel(key, true);
+            })
 
-        await new Promise<void>(resolve => {
-            const checkBuffer = () => {
-                if (this.markerBuffer.size == 0) resolve();
-                else setTimeout(checkBuffer, 100);
-            };
-            checkBuffer();
-        });
+            await new Promise<void>(resolve => {
+                const checkBuffer = () => {
+                    if (this.markerBuffer.size == 1) resolve();
+                    else setTimeout(checkBuffer, 100);
+                };
+                checkBuffer();
+            });
+        } else {
+            this.markerBuffer.forEach((_, key) => {
+                this.removeModel(key, true);
+            })
+
+            await new Promise<void>(resolve => {
+                const checkBuffer = () => {
+                    if (this.markerBuffer.size == 0) resolve();
+                    else setTimeout(checkBuffer, 100);
+                };
+                checkBuffer();
+            });
+        }
     }
 
     public detectMarker(x: number, y: number) : string {
