@@ -245,16 +245,16 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         }
     }
 
-    public async changeModelColor(color: Coordinates) {
+    public async changeModelColor(color: Color) {
         const model = this.glWin.getModel(this.currentModelKey);
         if (!model) throw Error("Invalid model in focus");
 
         const newModel = model.clone();
         for (let index = 0; index < newModel.colorBuffer.data.length; index += 4) {
-            newModel.colorBuffer.data[index + 0] = color.x;
-            newModel.colorBuffer.data[index + 1] = color.y;
-            newModel.colorBuffer.data[index + 2] = color.z;
-            newModel.colorBuffer.data[index + 3] = color.p;
+            newModel.colorBuffer.data[index + 0] = color.r;
+            newModel.colorBuffer.data[index + 1] = color.g;
+            newModel.colorBuffer.data[index + 2] = color.b;
+            newModel.colorBuffer.data[index + 3] = color.a;
         }
 
         this.currentModelKey = await this.glWin.updateModel(AnimationType.COLOR, newModel, this.currentModelKey, false),

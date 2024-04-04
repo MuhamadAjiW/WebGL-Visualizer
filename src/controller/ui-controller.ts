@@ -5,6 +5,7 @@ import {CanvasController} from "./canvas-controller";
 import {MouseController} from "./mouse-controller";
 import {m4, Matrix4} from "../util/m4.ts";
 import {id4} from '../util/m4';
+import {Color} from "../types/color.ts";
 
 export class UIController extends Observer<CanvasMouseEvent> {
     constructor(glWin: CanvasController, mouseCtrl: MouseController) {
@@ -27,6 +28,7 @@ export class UIController extends Observer<CanvasMouseEvent> {
         const y_slider_label = document.getElementById("y-slider-label") as HTMLLabelElement
         const rotate_slider = document.getElementById("rotate-slider") as HTMLInputElement
         const rotate_slider_label = document.getElementById("rotate-slider-label") as HTMLLabelElement
+        const color_picker = document.getElementById("color-picker") as HTMLInputElement;
 
         let matrixTranslationX: Matrix4 = id4;
         let matrixTranslationY: Matrix4 = id4;
@@ -70,6 +72,7 @@ export class UIController extends Observer<CanvasMouseEvent> {
                 slider_container.style.visibility = "hidden";
                 return;
             } else {
+                color_picker.style.visibility = "hidden";
 
                 const model = glWin.getModel(model_label.innerText);
 
@@ -195,12 +198,20 @@ export class UIController extends Observer<CanvasMouseEvent> {
             mouseCtrl.handleHover(event);
         }
 
+        color_picker.oninput = () => {
+            const color = color_picker.value;
+            const newColor = Color.fromHex(color);
+            mouseCtrl.changeMarkerColor(newColor);
+        }
 
         this.subscribe(mouseCtrl);
         this.addEventListener(CanvasMouseEvent.EVENT_FOCUS_CHANGE, (data) => {
             model_label.innerText = data.modelFocusKey ? data.modelFocusKey : "none";
             marker_label.innerText = data.markerFocusKey ? data.markerFocusKey : "none";
-            model_dropdown.value = data.modelFocusKey ? data.modelFocusKey : "";
+            console.log("model label: " + data.modelFocusKey)
+            color_picker.style.visibility = marker_label.innerText !== "none" ? "visible" : "hidden";
+            color_picker.value = marker_label.innerText !== "none" ? glWin.getMarker(marker_label.innerText)!.color.toHex() : "#808080";
+            slider_container.style.visibility = model_label.innerText !== "none" ? "visible" : "hidden";
         })
 
         glWin.clear();
