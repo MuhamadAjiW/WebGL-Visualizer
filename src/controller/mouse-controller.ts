@@ -114,8 +114,8 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         }
     }
 
-    public async setFocusModel(modelKey: string | null){
-        if(modelKey == null){
+    public async setFocusModel(modelKey: string | null) {
+        if (modelKey == null) {
             this.currentModelKey = "";
             this.currentMarkerKey = ""
             this.hoverMarkerKey = ""
@@ -123,10 +123,10 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE, this.getCanvasEventData())
             return;
         }
-        
+
         let model = this.glWin.getModel(modelKey);
 
-        if(model == null) throw Error("Invalid model requested");
+        if (model == null) throw Error("Invalid model requested");
 
         this.currentModelKey = modelKey;
         this.currentMarkerKey = ""
@@ -138,8 +138,10 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         const coords: Array<Coordinates> = model.getBufferData(BufferType.POSITION, true);
         const colors: Array<Coordinates> = model.getBufferData(BufferType.COLOR, true);
 
-        coords.forEach(async (coord, index) => {
-            let markerSizeOffset = Config.MARKER_SIZE/2;
+        let counter = 0;
+        for (const coord of coords) {
+            const index = coords.indexOf(coord);
+            let markerSizeOffset = Config.MARKER_SIZE / 2;
             let markerCoords = new Array<Coordinates>(
                 new Coordinates(coord.x - markerSizeOffset, coord.y - markerSizeOffset),
                 new Coordinates(coord.x + markerSizeOffset, coord.y + markerSizeOffset)
@@ -147,13 +149,23 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             let marker: MarkerModel = new MarkerModel(
                 markerCoords, index, new Coordinates(colors[index].x, colors[index].y, colors[index].z, Config.MARKER_ALPHA)
             );
-            
+
             await this.glWin.addModel(marker, markerCoords[0], "", "", true);
-        })
+            counter++;
+        }
+
+        await new Promise<void>(resolve => {
+            const checkBuffer = () => {
+                if (counter == coords.length) resolve();
+                else setTimeout(checkBuffer, 100);
+            };
+            checkBuffer();
+        });
     }
 
-    public async restoreFocusModel(){
-        this.setFocusModel(this.currentModelKey);
+    public async restoreFocusModel() {
+        await this.setFocusModel(this.currentModelKey);
+        this.setFocusMarker();
     }
 
     public async setFocusMarker(){
