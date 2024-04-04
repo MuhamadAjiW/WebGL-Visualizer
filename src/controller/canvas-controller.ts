@@ -6,6 +6,7 @@ import { ExportData } from '../types/export-data';
 import { Config } from '../config';
 import { MarkerModel } from "../models/marker-model";
 import { WebGlController } from "./webgl-controller";
+import { AnimationType } from "../types/enum/animate-type";
 
 export class CanvasController {    
     public canvas: HTMLCanvasElement;
@@ -73,7 +74,7 @@ export class CanvasController {
         )
             
         
-        this.animateModel(lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
+        this.animateModel(AnimationType.POSITION, lerpKey, lerpModel, model, key, replacedModelKey, isMarker);
 
         if (!key.includes("Marker")) {
             const optGroup = document.getElementById(model.type.valueOf() + "-group") as HTMLOptGroupElement;
@@ -94,13 +95,18 @@ export class CanvasController {
         return key;
     }
 
-    public async updateModel(targetModel: BaseModel, modelKey: string, isMarker: boolean=false): Promise<string> {
+    public async updateModel(type: AnimationType, targetModel: BaseModel, modelKey: string, isMarker: boolean=false): Promise<string> {
         const buffer = isMarker? this.markerBuffer : this.modelBuffer;
-
+        
         const originModel = buffer.get(modelKey);
-
+        
         if(originModel == null) throw Error("No origin model found");
         if(targetModel.positionBuffer.len != originModel.positionBuffer.len) throw Error("Target and origin model does not have the same vertex count");
+        if(type == AnimationType.NULL) {
+            buffer.set(modelKey, targetModel);
+            this.draw();
+            return modelKey;
+        }
 
         this.lerpCode++;
         const lerpModel = originModel.clone();
@@ -110,7 +116,7 @@ export class CanvasController {
         this.draw();
 
         const key: string = isMarker? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++;
-        this.animateModel(lerpKey, lerpModel, targetModel, key, modelKey, isMarker);
+        this.animateModel(type, lerpKey, lerpModel, targetModel, key, modelKey, isMarker);
 
         await new Promise(resolve => {
             const checkBuffer = () => {
@@ -149,7 +155,7 @@ export class CanvasController {
             lerpModelData
         )
 
-        this.animateModel(lerpKey, model, lerpModel, modelKey, modelKey, isMarker);
+        this.animateModel(AnimationType.POSITION, lerpKey, model, lerpModel, modelKey, modelKey, isMarker);
 
         await new Promise<void>(resolve => {
             const checkBuffer = () => {
@@ -264,19 +270,25 @@ export class CanvasController {
         this.draw();
     }
 
-    private animateModel(lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string, replacedModelKey: string="", isMarker: boolean=false){
-        lerpModel.positionBuffer.data.forEach((value, index) => {
-            lerpModel.positionBuffer.data[index] =
-                lerp(value, targetModel.positionBuffer.data[index], Config.LERP_MODIFIER);
-        })
-        lerpModel.colorBuffer.data.forEach((value, index) => {
-            lerpModel.colorBuffer.data[index] =
-                lerp(value, targetModel.colorBuffer.data[index], Config.LERP_MODIFIER);
-        })
-        lerpModel.uniforms["u_matrix"].forEach((value, index) => {
-            lerpModel.uniforms["u_matrix"][index] =
-                lerp(value, targetModel.uniforms["u_matrix"][index], Config.LERP_MODIFIER);
-        });
+    private animateModel(type: AnimationType, lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string, replacedModelKey: string="", isMarker: boolean=false){
+        if(type && AnimationType.POSITION){
+            lerpModel.positionBuffer.data.forEach((value, index) => {
+                lerpModel.positionBuffer.data[index] =
+                    lerp(value, targetModel.positionBuffer.data[index], Config.LERP_MODIFIER);
+            })
+        }
+        if(type && AnimationType.COLOR){
+            lerpModel.colorBuffer.data.forEach((value, index) => {
+                lerpModel.colorBuffer.data[index] =
+                    lerp(value, targetModel.colorBuffer.data[index], Config.LERP_MODIFIER);
+            });
+        }
+        if(type && AnimationType.UNIFORM){
+            lerpModel.uniforms["u_matrix"].forEach((value, index) => {
+                lerpModel.uniforms["u_matrix"][index] =
+                    lerp(value, targetModel.uniforms["u_matrix"][index], Config.LERP_MODIFIER);
+            });
+        }
 
         const buffer: Map<string, BaseModel> = isMarker? this.markerBuffer : this.modelBuffer; 
 
@@ -300,7 +312,7 @@ export class CanvasController {
         };
 
         requestAnimationFrame(() => {
-            this.animateModel(lerpKey, lerpModel, targetModel, modelKey, replacedModelKey, isMarker)
+            this.animateModel(type, lerpKey, lerpModel, targetModel, modelKey, replacedModelKey, isMarker)
         })
     }
 

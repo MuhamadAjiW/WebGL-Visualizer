@@ -11,6 +11,7 @@ import {BufferType} from "../types/enum/buffer-type";
 import {Observable} from "../types/events/web-gl-events";
 import {CanvasMouseEvent} from "../types/events/canvas-mouse-event";
 import {CanvasController} from "./canvas-controller";
+import { AnimationType } from "../types/enum/animate-type";
 
 export class MouseController extends Observable<CanvasMouseEvent> {
     public state: ModelType = ModelType.NULL
@@ -151,7 +152,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
                 markerCoords, index, new Coordinates(colors[index].x, colors[index].y, colors[index].z, Config.MARKER_ALPHA)
             );
 
-            await this.glWin.addModel(marker, markerCoords[0], "", "", true);
+            this.glWin.addModel(marker, markerCoords[0], "", "", true);
             counter++;
         }
 
@@ -232,8 +233,8 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             newMarker.setColor(color);
 
             const [modelPromise, markerPromise] = await Promise.all([
-                this.glWin.updateModel(newModel, this.currentModelKey, false),
-                this.glWin.updateModel(newMarker, this.currentMarkerKey, true)
+                this.glWin.updateModel(AnimationType.COLOR, newModel, this.currentModelKey, false),
+                this.glWin.updateModel(AnimationType.COLOR, newMarker, this.currentMarkerKey, true)
             ]);
 
             this.currentModelKey = modelPromise;
@@ -255,7 +256,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             newModel.colorBuffer.data[index + 3] = color.p;
         }
 
-        this.currentModelKey = await this.glWin.updateModel(newModel, this.currentModelKey, false),
+        this.currentModelKey = await this.glWin.updateModel(AnimationType.COLOR, newModel, this.currentModelKey, false),
             await this.setFocusModel(this.currentModelKey);
     }
 
