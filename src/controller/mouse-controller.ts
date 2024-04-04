@@ -12,6 +12,7 @@ import {Observable} from "../types/events/web-gl-events";
 import {CanvasMouseEvent} from "../types/events/canvas-mouse-event";
 import {CanvasController} from "./canvas-controller";
 import { AnimationType } from "../types/enum/animate-type";
+import {Color} from "../types/color.ts";
 
 export class MouseController extends Observable<CanvasMouseEvent> {
     public state: ModelType = ModelType.NULL
@@ -60,7 +61,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
 
         // TODO: Set using base color picker instead of default color
         let marker: MarkerModel = new MarkerModel(
-            markerCoords, this.buffer.length - 1, new Coordinates(Config.DEFAULT_COLOR.x, Config.DEFAULT_COLOR.y, Config.DEFAULT_COLOR.z, Config.MARKER_ALPHA)
+            markerCoords, this.buffer.length - 1, new Color(Config.DEFAULT_COLOR.r, Config.DEFAULT_COLOR.g, Config.DEFAULT_COLOR.b, Config.MARKER_ALPHA)
         )
         this.glWin.addModel(marker, markerCoords[0], "", "", true);
 
@@ -149,7 +150,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
                 new Coordinates(coord.x + markerSizeOffset, coord.y + markerSizeOffset)
             );
             let marker: MarkerModel = new MarkerModel(
-                markerCoords, index, new Coordinates(colors[index].x, colors[index].y, colors[index].z, Config.MARKER_ALPHA)
+                markerCoords, index, new Color(colors[index].x, colors[index].y, colors[index].z, Config.MARKER_ALPHA)
             );
 
             this.glWin.addModel(marker, markerCoords[0], "", "", true);
@@ -214,7 +215,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         }
     }
 
-    public async changeMarkerColor(color: Coordinates) {
+    public async changeMarkerColor(color: Color) {
         if (this.currentMarkerKey == "" || this.currentModelKey == "") throw Error("Invalid model or marker in focus");
 
         const model = this.glWin.getModel(this.currentModelKey);
@@ -224,10 +225,10 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         if (marker != null) {
             const newModel = model.clone();
             const offset = marker.index * 4;
-            newModel.colorBuffer.data[offset + 0] = color.x;
-            newModel.colorBuffer.data[offset + 1] = color.y;
-            newModel.colorBuffer.data[offset + 2] = color.z;
-            newModel.colorBuffer.data[offset + 3] = color.p;
+            newModel.colorBuffer.data[offset + 0] = color.r;
+            newModel.colorBuffer.data[offset + 1] = color.g;
+            newModel.colorBuffer.data[offset + 2] = color.b;
+            newModel.colorBuffer.data[offset + 3] = color.a;
 
             const newMarker = marker.clone();
             newMarker.setColor(color);

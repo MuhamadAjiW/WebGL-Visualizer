@@ -1,12 +1,13 @@
 import {Coordinates} from "../types/coordinates";
 import {SquareModel} from "./square-model";
+import {Color} from "../types/color.ts";
 
 export class MarkerModel extends SquareModel {
     public index: number;
-    private color: Coordinates;
+    public color: Color;
     private active: boolean;
 
-    constructor(points: Array<Coordinates>, boundIndex: number, color: Coordinates) {
+    constructor(points: Array<Coordinates>, boundIndex: number, color: Color) {
         super(points);
         this.index = boundIndex;
         this.color = color;
@@ -51,12 +52,12 @@ export class MarkerModel extends SquareModel {
                 new Coordinates(this.positionBuffer.data[8], this.positionBuffer.data[9], this.positionBuffer.data[10], this.positionBuffer.data[11])
             ],
             this.index,
-            new Coordinates(this.colorBuffer.data[0], this.colorBuffer.data[1], this.colorBuffer.data[2], this.colorBuffer.data[3])
+            new Color(this.colorBuffer.data[0], this.colorBuffer.data[1], this.colorBuffer.data[2], this.colorBuffer.data[3])
         );
         return retval;
     }
 
-    public setColor(color: Coordinates) {
+    public setColor(color: Color) {
         this.color = color;
         let colorData: Array<number> = [];
         for (let index = 0; index < 4; index++) {
@@ -66,12 +67,12 @@ export class MarkerModel extends SquareModel {
     }
 
     public highlight() {
-        const newColor = new Coordinates(this.color.x, this.color.y, this.color.z, 1);
+        const newColor = new Color(this.color.r, this.color.g, this.color.b, 1);
         this.setColor(newColor);
     }
 
     public unhighlight() {
-        const newColor = new Coordinates(this.color.x, this.color.y, this.color.z, 0.8);
+        const newColor = new Color(this.color.r, this.color.g, this.color.b, 0.8);
         this.setColor(newColor);
     }
 

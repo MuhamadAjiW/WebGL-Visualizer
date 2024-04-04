@@ -70,7 +70,20 @@ export class UIController extends Observer<CanvasMouseEvent> {
                 slider_container.style.visibility = "hidden";
                 return;
             } else {
+
+                const model = glWin.getModel(model_label.innerText);
+
+                x_slider.value = model!.x_translation.toString();
+                x_slider_label.innerText = "X Slider: " + x_slider.value;
+
+                y_slider.value = model!.y_translation.toString();
+                y_slider_label.innerText = "Y Slider: " + y_slider.value;
+
+                rotate_slider.value = (model!.z_rotation * 180 / Math.PI).toString();
+                rotate_slider_label.innerText = "Rotate Slider: " + rotate_slider.value;
+
                 slider_container.style.visibility = "visible";
+                mouseCtrl.setFocusModel(model_label.innerText);
             }
         }
 
@@ -93,6 +106,9 @@ export class UIController extends Observer<CanvasMouseEvent> {
             u_matrix = m4.multiply(matrixTranslationY, u_matrix);
 
             model.uniforms.u_matrix = u_matrix;
+            model.x_translation = u_matrix[12];
+            model.y_translation = u_matrix[13];
+            model.z_rotation = Math.atan2(u_matrix[1], u_matrix[0]);
             glWin.setModel(model_label.innerText, model);
         }
 
