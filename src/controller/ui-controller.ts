@@ -90,6 +90,7 @@ export class UIController {
                 slider_container.style.visibility = "visible";
 
                 if(model != activeModel) mouseCtrl.setFocusModel(model_label.innerText);
+                activeModel = glWin.getModel(model_label.innerText);
             }
         }
 
