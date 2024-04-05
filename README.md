@@ -33,7 +33,7 @@ Kelompok SukaSamaKamu
 - npm version 10 or latest
 
 # How to Run the program
-1. Ensure the requirement are installed in your device
+1. Ensure the requirement are installed on your device
 2. Enter the directory and run on terminal
    ```sh
    npm install
