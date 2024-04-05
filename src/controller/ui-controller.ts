@@ -50,7 +50,7 @@ export class UIController {
         let activeMarker: MarkerModel | undefined;
 
         vertex_x_slider.oninput = () => {
-            vertex_x_slider_label.innerText = "MarkerX: " + vertex_x_slider.value;
+            vertex_x_slider_label.innerText = "Marker X: " + vertex_x_slider.value;
             if(activeMarker && activeModel){
                 switch (activeModel?.type) {
                     case ModelType.LINE:
@@ -77,7 +77,7 @@ export class UIController {
         }
 
         vertex_y_slider.oninput = () => {
-            vertex_y_slider_label.innerText = "MarkerX: " + vertex_y_slider.value;
+            vertex_y_slider_label.innerText = "Marker Y: " + vertex_y_slider.value;
             if(activeMarker && activeModel){
                 switch (activeModel?.type) {
                     case ModelType.LINE:
@@ -101,6 +101,22 @@ export class UIController {
                 }
                 glWin.setModel(model_label.innerText, activeModel!);
             }
+        }
+
+        vertex_x_slider.onmousedown = async () => {
+            await glWin.clearMarker(true);
+        }
+
+        vertex_x_slider.onmouseup = async () => {
+            await mouseCtrl.restoreFocusModel();
+        }
+
+        vertex_y_slider.onmousedown = async () => {
+            await glWin.clearMarker(true);
+        }
+
+        vertex_y_slider.onmouseup = async () => {
+            await mouseCtrl.restoreFocusModel();
         }
 
 
