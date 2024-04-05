@@ -2,7 +2,7 @@ import {BufferInfo} from "../types/buffer-info";
 import {Coordinates} from "../types/coordinates";
 import {BufferType} from "../types/enum/buffer-type";
 import {ModelType} from "../types/enum/model-state";
-import { m4 } from "../util/m4";
+import {m4} from "../util/m4";
 import {BaseModel} from "./base-model";
 
 export class LineModel extends BaseModel {
@@ -59,6 +59,7 @@ export class LineModel extends BaseModel {
 
         return retval;
     };
+
     public override generateUniform(): void {
         const center = this.getCenter();
         const lengthScale: number = 1 + this.length
@@ -77,8 +78,8 @@ export class LineModel extends BaseModel {
         u_matrix = m4.multiply(matrixTranslationY, u_matrix);
         this.uniforms.u_matrix = u_matrix;
     }
-    
-    public override moveVertex(index: number, targetX: number, targetY: number) {
+
+    public override moveVertex(_index: number, targetX: number, targetY: number) {
         // index = 2;
         // console.log("index", index);
         // const pivotIndex = (index + 2) % 4;
@@ -93,18 +94,18 @@ export class LineModel extends BaseModel {
 
         const center = new Coordinates((pivot.x + target.x) / 2, (pivot.y + target.y) / 2);
 
-        const translateRotate = m4.translate(m4.zRotate(m4.translation(center.x, center.y, 0),-this.z_rotation), -center.x, -center.y, 0);
+        const translateRotate = m4.translate(m4.zRotate(m4.translation(center.x, center.y, 0), -this.z_rotation), -center.x, -center.y, 0);
 
         const movedPivot = m4.multiply4x1(translateRotate, pivot.getComponents());
         console.log("movedPivot", movedPivot);
         const movedTarget = m4.multiply4x1(translateRotate, target.getComponents());
         console.log("movedTarget", movedTarget);
 
-        const newModel = new LineModel([new Coordinates(movedPivot[0], movedPivot[1]), 
-                                             new Coordinates(movedTarget[0], movedTarget[1])]);
+        const newModel = new LineModel([new Coordinates(movedPivot[0], movedPivot[1]),
+            new Coordinates(movedTarget[0], movedTarget[1])]);
 
         console.log("newModel", newModel.getBufferData(BufferType.POSITION));
-        const translateRotateReverse =  m4.translate(m4.zRotate(m4.translation(center.x, center.y, 0), this.z_rotation), -center.x, -center.y, 0);
+        const translateRotateReverse = m4.translate(m4.zRotate(m4.translation(center.x, center.y, 0), this.z_rotation), -center.x, -center.y, 0);
         console.log("translateRotateReversePivot", m4.multiply4x1(translateRotateReverse, movedPivot));
         console.log("translateRotateReverseTarget", m4.multiply4x1(translateRotateReverse, movedTarget));
 
