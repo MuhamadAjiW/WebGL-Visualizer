@@ -1,8 +1,8 @@
 import {BufferInfo} from "../types/buffer-info";
 import {Coordinates} from "../types/coordinates";
-import { BufferType } from "../types/enum/buffer-type";
+import {BufferType} from "../types/enum/buffer-type";
 import {ModelType} from "../types/enum/model-state";
-import { id4, m4 } from "../util/m4";
+import {m4} from "../util/m4";
 import {BaseModel} from "./base-model";
 
 export class SquareModel extends BaseModel {
@@ -17,7 +17,7 @@ export class SquareModel extends BaseModel {
 
         const theta = Math.atan2(vector.y, vector.x) - Math.PI / 4
 
-        const translateRotate = m4.translate(m4.zRotate(m4.translation(center.x, center.y, 0),-theta), -center.x, -center.y, 0);
+        const translateRotate = m4.translate(m4.zRotate(m4.translation(center.x, center.y, 0), -theta), -center.x, -center.y, 0);
         const initVertex = m4.multiply4x1(translateRotate, points[0].getComponents());
         const endVertex = m4.multiply4x1(translateRotate, points[1].getComponents());
 
@@ -42,7 +42,8 @@ export class SquareModel extends BaseModel {
         )
         this.z_rotation = theta;
     }
-    public override moveVertex(index: number, targetX: number, targetY: number) {
+
+    public override moveVertex(_index: number, targetX: number, targetY: number) {
         // index = 2;
         // console.log("index", index);
         // const pivotIndex = (index + 2) % 4;
@@ -56,6 +57,7 @@ export class SquareModel extends BaseModel {
 
         return newModel;
     }
+
     public override generateUniform(): void {
         const center = this.getCenter();
         const lengthScale: number = 1 + this.length

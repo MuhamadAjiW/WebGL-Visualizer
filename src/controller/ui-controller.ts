@@ -259,7 +259,7 @@ export class UIController {
         rotate_slider.oninput = () => {
             rotate_slider_label.innerText = "Rotation: " + rotate_slider.value;
             if (activeModel) {
-                activeModel.z_rotation = parseInt(rotate_slider.value);
+                activeModel.z_rotation = parseInt(rotate_slider.value) * Math.PI / 180;
                 glWin.setModel(model_label.innerText, activeModel);
             }
         }
@@ -382,7 +382,6 @@ export class UIController {
         })
 
         this.eventListener.listen<CanvasModelEvent>(CanvasModelEvent, CanvasModelEvent.EVENT_MODEL_DELETE, (data) => {
-            const optGroup = document.getElementById(data.model?.type.valueOf() + "-group") as HTMLOptGroupElement;
             document.getElementById(data.modelKey)?.remove();
             // set visibility to none
         })

@@ -85,8 +85,8 @@ export class BaseModel {
         const matrixTranslationX = this.x_translation == 0 ? id4 : m4.translation(this.x_translation, 0, 0);
         const matrixTranslationY = this.y_translation == 0 ? id4 : m4.translation(0, this.y_translation, 0);
         const matrixRotation = m4.zRotation(this.z_rotation);
-        const widthScale = 1 + this.width 
-       
+        const widthScale = 1 + this.width
+
         const lengthScale = 1 + this.length
         const matrixScale = m4.scaling(widthScale, lengthScale, 1);
 
@@ -95,12 +95,13 @@ export class BaseModel {
         u_matrix = m4.multiply(matrixScale, u_matrix);
         u_matrix = m4.multiply(matrixRotation, u_matrix);
         u_matrix = m4.multiply(matrixRotationT2, u_matrix);
-        
+
         u_matrix = m4.multiply(matrixTranslationX, u_matrix);
         u_matrix = m4.multiply(matrixTranslationY, u_matrix);
 
         this.uniforms.u_matrix = u_matrix;
     }
 
-    public moveVertex(index: number, targetX: number, targetY: number){}
+    public moveVertex(_index: number, _targetX: number, _targetY: number) {
+    }
 }
