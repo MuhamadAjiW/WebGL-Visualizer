@@ -85,11 +85,11 @@ export class BaseModel {
         const matrixRotation = m4.zRotation(this.z_rotation * Math.PI / (180));
         let widthScale: number
         if (this.width == -1) {
-            widthScale = this.length != 0 ? this.length / 30 : 1
+            widthScale = this.length != 0 ? 1 + (this.length / 30) : 1
         } else {
-            widthScale = this.width != 0 ? this.width / 30 : 1
+            widthScale = this.width != 0 ? 1 + (this.width / 30) : 1
         }
-        const lengthScale: number = this.length != 0 ? this.length / 30 : 1
+        const lengthScale: number = this.length != 0 ? 1 + (this.length / 30) : 1
         const matrixScale = m4.scaling(widthScale, lengthScale, 1);
 
         let u_matrix: Matrix4 = id4;
