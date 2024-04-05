@@ -2,6 +2,7 @@ import {BufferInfo, Uniforms} from "../types/buffer-info";
 import {Coordinates} from "../types/coordinates";
 import {BufferType} from "../types/enum/buffer-type";
 import {ModelType} from "../types/enum/model-state";
+import { Matrix4, id4, m4 } from "../util/m4";
 
 export class BaseModel {   
     public type: ModelType = ModelType.NULL
@@ -46,6 +47,9 @@ export class BaseModel {
         retval.positionBuffer = this.positionBuffer.clone();
         retval.colorBuffer = this.colorBuffer.clone();
         retval.uniforms = this.uniforms;
+        retval.x_translation = this.x_translation;
+        retval.y_translation = this.y_translation;
+        retval.z_rotation = this.z_rotation;
         return retval;
     }
 
@@ -67,5 +71,25 @@ export class BaseModel {
             sumZ / this.positionBuffer.len,
             sumP / this.positionBuffer.len
         );
+    }
+
+    public generateUniform(){
+        
+        const center = this.getCenter();
+        const matrixRotationT1 = m4.translation(-center.x, -center.y, 0);
+        const matrixRotationT2 = m4.translation(center.x, center.y, 0);
+        const matrixTranslationX = this.x_translation == 0 ? id4 : m4.translation(this.x_translation, 0, 0);
+        const matrixTranslationY = this.y_translation == 0 ? id4 : m4.translation(0, this.y_translation, 0);
+        const matrixRotation = m4.zRotation(this.z_rotation * Math.PI / (180));
+        
+        let u_matrix: Matrix4 = id4;
+        u_matrix = m4.multiply(matrixRotationT1, u_matrix);
+        u_matrix = m4.multiply(matrixRotation, u_matrix);
+        u_matrix = m4.multiply(matrixRotationT2, u_matrix);
+
+        u_matrix = m4.multiply(matrixTranslationX, u_matrix);
+        u_matrix = m4.multiply(matrixTranslationY, u_matrix);
+
+        this.uniforms.u_matrix = u_matrix;
     }
 }

@@ -45,6 +45,7 @@ export class WebGlController {
         this.setUniforms(this.uniformSetters, {u_resolution: [this.canvas.width, this.canvas.height]});
         
         buffer.forEach((baseShape: BaseModel) => {
+            baseShape.generateUniform();
             this.gl.useProgram(this.program);
             this.setUniforms(this.uniformSetters, baseShape.uniforms);
             this.setPosition(baseShape.positionBuffer);
