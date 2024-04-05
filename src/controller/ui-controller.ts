@@ -220,10 +220,13 @@ export class UIController {
 
         delete_vertex_button.onclick = () => {
             mouseCtrl.removeMarker();
+            activeMarker = undefined;
         }
 
         delete_model_button.onclick = () => {
             mouseCtrl.removeModel();
+            activeModel = undefined;
+            activeMarker = undefined;
         }
 
         clear_btn.onclick = () => {
@@ -231,6 +234,8 @@ export class UIController {
             file_input.files = null;
             file_input.value = '';
             mouseCtrl.reset();
+            activeMarker = undefined;
+            activeModel = undefined;
         }
 
         save_btn.onclick = () => {
