@@ -7,6 +7,10 @@ import {CanvasModelEvent} from "../types/events/canvas-model-event.ts";
 import {Color} from "../types/color.ts";
 import {BaseModel} from "../models/base-model.ts";
 import {MarkerModel} from "../models/marker-model.ts";
+import { RectangleModel } from "../models/rectangle-model.ts";
+import { LineModel } from "../models/line-model.ts";
+import { SquareModel } from "../models/square-model.ts";
+import { PolygonModel } from "../models/polygon-model.ts";
 
 export class UIController {
     private eventListener: EventListener = new EventListener();
@@ -37,19 +41,79 @@ export class UIController {
         const rotate_slider_label = document.getElementById("rotate-slider-label") as HTMLLabelElement
         const delete_vertex_button = document.getElementById("delete-vertex-button") as HTMLButtonElement;
         const delete_model_button = document.getElementById("delete-model-button") as HTMLButtonElement;
-
+        const vertex_x_slider = document.getElementById("vertex-x-slider") as HTMLInputElement
+        const vertex_x_slider_label = document.getElementById("vertex-x-slider-label") as HTMLLabelElement
+        const vertex_y_slider = document.getElementById("vertex-y-slider") as HTMLInputElement
+        const vertex_y_slider_label = document.getElementById("vertex-y-slider-label") as HTMLLabelElement
+        
         let activeModel: BaseModel | undefined;
         let activeMarker: MarkerModel | undefined;
+
+        vertex_x_slider.oninput = () => {
+            vertex_x_slider_label.innerText = "MarkerX: " + vertex_x_slider.value;
+            if(activeMarker && activeModel){
+                switch (activeModel?.type) {
+                    case ModelType.LINE:
+                        activeModel = (activeModel as LineModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
+                        break;
+                
+                    case ModelType.RECTANGLE:
+                        activeModel = (activeModel as RectangleModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
+                        break;
+                    
+                    case ModelType.SQUARE:
+                        activeModel = (activeModel as SquareModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
+                        break;
+
+                    case ModelType.POLYGON:
+                        activeModel = (activeModel as PolygonModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
+                        break;
+
+                    default:
+                        throw Error("Invalid model type");
+                }
+                glWin.setModel(model_label.innerText, activeModel!);
+            }
+        }
+
+        vertex_y_slider.oninput = () => {
+            vertex_y_slider_label.innerText = "MarkerX: " + vertex_y_slider.value;
+            if(activeMarker && activeModel){
+                switch (activeModel?.type) {
+                    case ModelType.LINE:
+                        activeModel = (activeModel as LineModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
+                        break;
+                
+                    case ModelType.RECTANGLE:
+                        activeModel = (activeModel as RectangleModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
+                        break;
+                    
+                    case ModelType.SQUARE:
+                        activeModel = (activeModel as SquareModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
+                        break;
+
+                    case ModelType.POLYGON:
+                        activeModel = (activeModel as PolygonModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
+                        break;
+
+                    default:
+                        throw Error("Invalid model type");
+                }
+                glWin.setModel(model_label.innerText, activeModel!);
+            }
+        }
+
+
 
         // TODO: delete, this a dummy button for function testing
         const test_btn = document.getElementById("test-button") as HTMLButtonElement
 
         test_btn.addEventListener("click", () => {
             // mouseCtrl.changeModelColor(new Coordinates(0, 0, 1, 1));
-            // mouseCtrl.changeMarkerColor(new Color(0, 0, 1, 1));
+            // glWin.changeModelColor(new Color(0, 0, 1, 1), mouseCtrl.currentModelKey);
             // mouseCtrl.removeMarker();
             // glWin.clearMarker(true);
-            load_btn.click();
+            // load_btn.click();
         })
 
         line_btn.onclick = () => {
@@ -89,7 +153,7 @@ export class UIController {
                 y_slider_label.innerText = "Model Y: " + y_slider.value;
 
                 rotate_slider.value = (model.z_rotation).toString();
-                rotate_slider_label.innerText = "Rotate Slider: " + rotate_slider.value;
+                rotate_slider_label.innerText = "Rotation: " + rotate_slider.value;
 
                 slider_container.style.visibility = "visible";
 
@@ -188,8 +252,8 @@ export class UIController {
         }
 
         rotate_slider.oninput = () => {
-            rotate_slider_label.innerText = "Rotate Slider " + rotate_slider.value;
-            if (activeModel) {
+            rotate_slider_label.innerText = "Rotation: " + rotate_slider.value;
+            if(activeModel){
                 activeModel.z_rotation = parseInt(rotate_slider.value);
                 glWin.setModel(model_label.innerText, activeModel);
             }
@@ -251,6 +315,10 @@ export class UIController {
                     if (event.target != null) {
                         const fileContents = event.target.result;
                         glWin.load(fileContents as string);
+                        activeMarker = undefined;
+                        activeModel = undefined;
+                        model_label.innerText = "none";
+                        marker_label.innerText = "none";
                     }
                 };
 

@@ -106,4 +106,6 @@ export class BaseModel {
 
         this.uniforms.u_matrix = u_matrix;
     }
+
+    public moveVertex(index: number, targetX: number, targetY: number){}
 }

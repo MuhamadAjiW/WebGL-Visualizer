@@ -59,8 +59,8 @@ export class LineModel extends BaseModel {
 
         return retval;
     };
-
-    moveVertex(index: number, targetX: number, targetY: number) {
+    
+    public override moveVertex(index: number, targetX: number, targetY: number) {
         // index = 2;
         // console.log("index", index);
         // const pivotIndex = (index + 2) % 4;
