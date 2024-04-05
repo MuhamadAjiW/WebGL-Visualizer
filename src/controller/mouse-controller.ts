@@ -107,7 +107,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
     public handleHover(event: MouseEvent) {
         if (this.clickBlocked) return
         const newMarkerKey = this.glWin.detectMarker(event.offsetX, event.offsetY);
-
+        
         if (newMarkerKey != this.hoverMarkerKey) {
             let marker = this.glWin.getMarker(this.hoverMarkerKey)
             if (marker != null && !marker.isActive()) {
@@ -116,7 +116,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             }
             this.hoverMarkerKey = newMarkerKey;
             if (this.hoverMarkerKey == null) return;
-
+            
             marker = this.glWin.getMarker(this.hoverMarkerKey)
             if (marker != null) {
                 marker.highlight();
@@ -133,7 +133,6 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             this.glWin.clearMarker();
             return;
         }
-
         
         let model = this.glWin.getModel(modelKey);
         
@@ -217,51 +216,6 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             await this.setFocusModel(newcode);
             this.setCurrentModelKey(newcode);
         }
-    }
-
-    public async changeMarkerColor(color: Color) {
-        if (this.currentMarkerKey == "" || this.currentModelKey == "") throw Error("Invalid model or marker in focus");
-
-        const model = this.glWin.getModel(this.currentModelKey);
-        if (!model) return;
-
-        const marker = this.glWin.getMarker(this.currentMarkerKey);
-        if (marker != null) {
-            const newModel = model.clone();
-            const offset = marker.index * 4;
-            newModel.colorBuffer.data[offset + 0] = color.r;
-            newModel.colorBuffer.data[offset + 1] = color.g;
-            newModel.colorBuffer.data[offset + 2] = color.b;
-            newModel.colorBuffer.data[offset + 3] = color.a;
-
-            const newMarker = marker.clone();
-            newMarker.setColor(color);
-
-            const [modelPromise, markerPromise] = await Promise.all([
-                this.glWin.updateModel(AnimationType.COLOR, newModel, this.currentModelKey, false),
-                this.glWin.updateModel(AnimationType.COLOR, newMarker, this.currentMarkerKey, true)
-            ]);
-
-            this.setCurrentModelKey(modelPromise);
-            this.setCurrentMarkerKey(markerPromise);
-        }
-    }
-
-    public async changeModelColor(color: Color) {
-        const model = this.glWin.getModel(this.currentModelKey);
-        if (!model) throw Error("Invalid model in focus");
-
-        const newModel = model.clone();
-        for (let index = 0; index < newModel.colorBuffer.data.length; index += 4) {
-            newModel.colorBuffer.data[index + 0] = color.r;
-            newModel.colorBuffer.data[index + 1] = color.g;
-            newModel.colorBuffer.data[index + 2] = color.b;
-            newModel.colorBuffer.data[index + 3] = color.a;
-        }
-
-        const newKey = await this.glWin.updateModel(AnimationType.COLOR, newModel, this.currentModelKey, false);
-        await this.setFocusModel(newKey);
-        this.setCurrentModelKey(newKey);
     }
 
     public async getModelBufferData() {

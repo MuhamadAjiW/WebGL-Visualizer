@@ -10,6 +10,7 @@ import {AnimationType} from "../types/enum/animate-type";
 import { Observable } from "../types/events/observer-pattern";
 import { CanvasModelEvent } from "../types/events/canvas-model-event";
 import { SquareModel } from "../models/square-model";
+import { Color } from "../types/color";
 
 export class CanvasController extends Observable<CanvasModelEvent> {
     public canvas: HTMLCanvasElement;
@@ -36,11 +37,13 @@ export class CanvasController extends Observable<CanvasModelEvent> {
     }
 
     public setModel(modelKey: string, modelData: BaseModel) {
+        // if(modelKey == "") return;
         this.modelBuffer.set(modelKey, modelData);
         this.draw()
     }
 
     public setMarker(markerKey: string, markerData: MarkerModel) {
+        // if(markerKey == "") return;
         this.markerBuffer.set(markerKey, markerData);
         this.draw()
     }
@@ -119,7 +122,6 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         buffer.set(modelKey, ghostBuffer);
         this.draw();
 
-        console.log("Updating model");
         const key: string = isMarker ? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++;
         this.animateModel(type, lerpKey, lerpModel, targetModel, key, modelKey, isMarker);
 
@@ -333,6 +335,50 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         requestAnimationFrame(() => {
             this.animateModel(type, lerpKey, lerpModel, targetModel, modelKey, replacedModelKey, isMarker)
         })
+    }
+
+    public async changeMarkerColor(modelKey: string, markerKey: string, color: Color, animate: boolean) {
+        if (modelKey == "" || markerKey == "") throw Error("Invalid model or marker");
+
+        const model = this.getModel(modelKey);
+        if (!model) return;
+
+        const marker = this.getMarker(markerKey);
+        if (marker != null) {
+            const newModel = model.clone();
+            const offset = marker.index * 4;
+            newModel.colorBuffer.data[offset + 0] = color.r;
+            newModel.colorBuffer.data[offset + 1] = color.g;
+            newModel.colorBuffer.data[offset + 2] = color.b;
+            newModel.colorBuffer.data[offset + 3] = color.a;
+
+            const newMarker = marker.clone();
+            newMarker.setColor(color);
+
+            this.updateModel(animate? AnimationType.COLOR : AnimationType.NULL, newModel, modelKey, false);
+            await this.updateModel(animate? AnimationType.COLOR : AnimationType.NULL, newMarker, markerKey, true);
+        }
+    }
+
+    public async changeModelColor(modelKey: string, color: Color, animate: boolean) {
+        const model = this.getModel(modelKey);
+        if (!model) throw Error("Invalid model");
+
+        const newModel = model.clone();
+        for (let index = 0; index < newModel.colorBuffer.data.length; index += 4) {
+            newModel.colorBuffer.data[index + 0] = color.r;
+            newModel.colorBuffer.data[index + 1] = color.g;
+            newModel.colorBuffer.data[index + 2] = color.b;
+            newModel.colorBuffer.data[index + 3] = color.a;
+        }
+
+        this.markerBuffer.forEach((value, key) => {
+            const newMarker = value.clone();
+            newMarker.setColor(color);
+            this.updateModel(animate? AnimationType.COLOR : AnimationType.NULL, newMarker, key, true);
+        })
+
+        await this.updateModel(animate? AnimationType.COLOR : AnimationType.NULL, newModel, modelKey, false);
     }
 
     private draw(): void {

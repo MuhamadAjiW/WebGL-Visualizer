@@ -6,8 +6,7 @@
     <title>Grafkom-tall</title>
 </head>
 <body style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center;">
-<div style="top: 0; left: 0; display: flex; flex-direction: column; width: 100%; height: 11vh; border: 1px solid black;">
-    <h3>Grafkom-tall</h3>
+<div style="top: 0; left: 0; display: flex; flex-direction: column; width: 100%; height: fit-content; border: 1px solid black;">
     <div style="display: flex; justify-content: space-between; align-items: center; align-content: center">
         <div style="display: flex; flex-direction: row; gap: 5px;">
             <button id="line-button">Line</button>
@@ -31,20 +30,22 @@
                 <optgroup id="polygon-group" style="display: none;" label="Polygon"></optgroup>
             </select>
 
-            <div id="slider-container" style="display: flex; flex-direction: row ;visibility: hidden">
-                <div style="display: flex; flex-direction: column;">
+            <div id="slider-container" style="display: grid; grid-template-columns: 1fr 1fr; visibility: hidden;">
+                <div>
                     <label id="x-slider-label" for="x-slider">X Slider: 0</label>
                     <input id="x-slider" type="range" min="-400" max="400" value="0" class="slider">
-
+                </div>
+                <div>
                     <label id="y-slider-label" for="y-slider">Y Slider: 0</label>
                     <input id="y-slider" type="range" min="-400" max="400" value="0" class="slider">
                 </div>
 
-                <div style="display: flex; flex-direction: column;">
+                <div>
                     <label id="rotate-slider-label" for="rotate-slider">Rotation Slider</label>
                     <input id="rotate-slider" type="range" min="0" max="360" value="0" class="slider">
-                    <input id="color-picker" type="color" style="visibility: hidden"/>
                 </div>
+
+                <input id="color-picker" type="color"/>
             </div>
 
         </div>

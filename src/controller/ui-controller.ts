@@ -6,6 +6,7 @@ import {MouseController} from "./mouse-controller";
 import { CanvasModelEvent } from "../types/events/canvas-model-event.ts";
 import { Color } from "../types/color.ts";
 import { BaseModel } from "../models/base-model.ts";
+import { MarkerModel } from "../models/marker-model.ts";
 
 export class UIController {
     private eventListener: EventListener = new EventListener();
@@ -32,6 +33,7 @@ export class UIController {
         const color_picker = document.getElementById("color-picker") as HTMLInputElement;
 
         let activeModel: BaseModel | undefined;
+        let activeMarker: MarkerModel | undefined;
 
         // TODO: delete, this a dummy button for function testing
         const test_btn = document.getElementById("test-button") as HTMLButtonElement
@@ -71,22 +73,21 @@ export class UIController {
                 slider_container.style.visibility = "hidden";
                 return;
             } else {
-                color_picker.style.visibility = "hidden";
+                const model = glWin.getModel(model_label.innerText);
+                if(!model) return;
 
-                activeModel = glWin.getModel(model_label.innerText);
-                if(!activeModel) return;
-
-                x_slider.value = activeModel.x_translation.toString();
+                x_slider.value = model.x_translation.toString();
                 x_slider_label.innerText = "X Slider: " + x_slider.value;
 
-                y_slider.value = activeModel.y_translation.toString();
+                y_slider.value = model.y_translation.toString();
                 y_slider_label.innerText = "Y Slider: " + y_slider.value;
 
-                rotate_slider.value = (activeModel.z_rotation).toString();
+                rotate_slider.value = (model.z_rotation).toString();
                 rotate_slider_label.innerText = "Rotate Slider: " + rotate_slider.value;
 
                 slider_container.style.visibility = "visible";
-                mouseCtrl.setFocusModel(model_label.innerText);
+
+                if(model != activeModel) mouseCtrl.setFocusModel(model_label.innerText);
             }
         }
 
@@ -141,7 +142,12 @@ export class UIController {
         color_picker.oninput = () => {
             const color = color_picker.value;
             const newColor = Color.fromHex(color);
-            mouseCtrl.changeMarkerColor(newColor);
+
+            if(activeMarker){
+                glWin.changeMarkerColor(mouseCtrl.currentModelKey, mouseCtrl.currentMarkerKey, newColor, false);
+            } else{
+                glWin.changeModelColor(mouseCtrl.currentModelKey, newColor, false);
+            }
         }
 
         clear_btn.onclick = () => {
@@ -190,29 +196,27 @@ export class UIController {
         this.eventListener.subscribe<CanvasMouseEvent>(CanvasMouseEvent, mouseCtrl);
 
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MARKER, (data) => {
-            console.log(`Marker focus set to ${data.markerFocusKey}`);
             marker_label.innerText = data.markerFocusKey ? data.markerFocusKey : "none";
             if (data.markerFocusKey) {
-                color_picker.style.visibility = "visible";
-                color_picker.value = glWin.getMarker(data.markerFocusKey)?.color.toHex() || "#000000";
+                activeMarker = glWin.getMarker(data.markerFocusKey);
+                color_picker.value = activeMarker?.color.toHex() || "#000000";
             }
         })
 
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, (data) => {
-            console.log(`Model focus set to ${data.modelFocusKey}`);
             model_label.innerText = data.modelFocusKey ? data.modelFocusKey : "none";
             
             const old_value = model_dropdown.value;
             const new_value = data.modelFocusKey ? data.modelFocusKey : "";
 
             if(old_value != new_value){
+                activeModel = glWin.getModel(new_value);
                 model_dropdown.value = new_value;
                 model_dropdown.dispatchEvent(new Event("change"));
             }
         })
 
         this.eventListener.listen<CanvasModelEvent>(CanvasModelEvent, CanvasModelEvent.EVENT_MODEL_ADD, (data) => {
-            console.log("Model added");
             const optGroup = document.getElementById(data.model?.type.valueOf() + "-group") as HTMLOptGroupElement;
             const option = document.createElement("option");
             option.id = data.modelKey;
@@ -222,7 +226,6 @@ export class UIController {
         })
 
         this.eventListener.listen<CanvasModelEvent>(CanvasModelEvent, CanvasModelEvent.EVENT_MODEL_DELETE, (data) => {
-            console.log("Model removed");
             const optGroup = document.getElementById(data.model?.type.valueOf() + "-group") as HTMLOptGroupElement;
             document.getElementById(data.modelKey)?.remove();
             if(optGroup.childElementCount == 0){
