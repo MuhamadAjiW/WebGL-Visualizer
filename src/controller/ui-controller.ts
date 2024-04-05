@@ -37,9 +37,10 @@ export class UIController {
 
         test_btn.addEventListener("click", () => {
             // mouseCtrl.changeModelColor(new Coordinates(0, 0, 1, 1));
-            mouseCtrl.changeMarkerColor(new Color(0, 0, 1, 1));
+            // mouseCtrl.changeMarkerColor(new Color(0, 0, 1, 1));
             // mouseCtrl.removeMarker();
             // glWin.clearMarker(true);
+            load_btn.click();
         })
 
         line_btn.onclick = () => {

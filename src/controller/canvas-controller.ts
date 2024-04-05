@@ -9,6 +9,7 @@ import {WebGlController} from "./webgl-controller";
 import {AnimationType} from "../types/enum/animate-type";
 import { Observable } from "../types/events/observer-pattern";
 import { CanvasModelEvent } from "../types/events/canvas-model-event";
+import { SquareModel } from "../models/square-model";
 
 export class CanvasController extends Observable<CanvasModelEvent> {
     public canvas: HTMLCanvasElement;
@@ -261,14 +262,20 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         await this.clear()
 
         const parsed = JSON.parse(jsonStr) as ExportData;
-
         const buffer = new Map<string, BaseModel>(parsed.modelBuffer);
         this.modelMapKey = parsed.modelMapKey
 
         buffer.forEach((val, key) => {
-            let model = val;
-            model.colorBuffer.data = new Float32Array(Object.values(val.colorBuffer.data))
-            model.positionBuffer.data = new Float32Array(Object.values(val.positionBuffer.data))
+            let model = new BaseModel();
+            model.type = val.type;
+            model.x_translation = val.x_translation;
+            model.y_translation = val.y_translation;
+            model.z_rotation = val.z_rotation;
+            model.colorBuffer.len = val.colorBuffer.len;
+            model.colorBuffer.data = new Float32Array(Object.values(val.colorBuffer.data));
+            model.positionBuffer.len = val.positionBuffer.len;
+            model.positionBuffer.data = new Float32Array(Object.values(val.positionBuffer.data));
+            model.uniforms["u_matrix"] = Object.values(val.uniforms.u_matrix);
 
             let startCoords = new Coordinates(
                 model.positionBuffer.data[0],
@@ -279,8 +286,6 @@ export class CanvasController extends Observable<CanvasModelEvent> {
 
             this.addModel(model, startCoords, key);
         })
-
-        this.draw();
     }
 
     private animateModel(type: AnimationType, lerpKey: string, lerpModel: BaseModel, targetModel: BaseModel, modelKey: string, replacedModelKey: string = "", isMarker: boolean = false) {
