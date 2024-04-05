@@ -7,10 +7,10 @@ import {CanvasModelEvent} from "../types/events/canvas-model-event.ts";
 import {Color} from "../types/color.ts";
 import {BaseModel} from "../models/base-model.ts";
 import {MarkerModel} from "../models/marker-model.ts";
-import { RectangleModel } from "../models/rectangle-model.ts";
-import { LineModel } from "../models/line-model.ts";
-import { SquareModel } from "../models/square-model.ts";
-import { PolygonModel } from "../models/polygon-model.ts";
+import {RectangleModel} from "../models/rectangle-model.ts";
+import {LineModel} from "../models/line-model.ts";
+import {SquareModel} from "../models/square-model.ts";
+import {PolygonModel} from "../models/polygon-model.ts";
 
 export class UIController {
     private eventListener: EventListener = new EventListener();
@@ -45,22 +45,22 @@ export class UIController {
         const vertex_x_slider_label = document.getElementById("vertex-x-slider-label") as HTMLLabelElement
         const vertex_y_slider = document.getElementById("vertex-y-slider") as HTMLInputElement
         const vertex_y_slider_label = document.getElementById("vertex-y-slider-label") as HTMLLabelElement
-        
+
         let activeModel: BaseModel | undefined;
         let activeMarker: MarkerModel | undefined;
 
         vertex_x_slider.oninput = () => {
             vertex_x_slider_label.innerText = "Marker X: " + vertex_x_slider.value;
-            if(activeMarker && activeModel){
+            if (activeMarker && activeModel) {
                 switch (activeModel?.type) {
                     case ModelType.LINE:
                         activeModel = (activeModel as LineModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
                         break;
-                
+
                     case ModelType.RECTANGLE:
                         activeModel = (activeModel as RectangleModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
                         break;
-                    
+
                     case ModelType.SQUARE:
                         activeModel = (activeModel as SquareModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
                         break;
@@ -78,16 +78,16 @@ export class UIController {
 
         vertex_y_slider.oninput = () => {
             vertex_y_slider_label.innerText = "Marker Y: " + vertex_y_slider.value;
-            if(activeMarker && activeModel){
+            if (activeMarker && activeModel) {
                 switch (activeModel?.type) {
                     case ModelType.LINE:
                         activeModel = (activeModel as LineModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
                         break;
-                
+
                     case ModelType.RECTANGLE:
                         activeModel = (activeModel as RectangleModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
                         break;
-                    
+
                     case ModelType.SQUARE:
                         activeModel = (activeModel as SquareModel).moveVertex(activeMarker.index, parseInt(vertex_x_slider.value), parseInt(vertex_y_slider.value));
                         break;
@@ -118,19 +118,6 @@ export class UIController {
         vertex_y_slider.onmouseup = async () => {
             await mouseCtrl.restoreFocusModel();
         }
-
-
-
-        // TODO: delete, this a dummy button for function testing
-        const test_btn = document.getElementById("test-button") as HTMLButtonElement
-
-        test_btn.addEventListener("click", () => {
-            // mouseCtrl.changeModelColor(new Coordinates(0, 0, 1, 1));
-            // glWin.changeModelColor(new Color(0, 0, 1, 1), mouseCtrl.currentModelKey);
-            // mouseCtrl.removeMarker();
-            // glWin.clearMarker(true);
-            // load_btn.click();
-        })
 
         line_btn.onclick = () => {
             mouseCtrl.state = ModelType.LINE;
@@ -269,7 +256,7 @@ export class UIController {
 
         rotate_slider.oninput = () => {
             rotate_slider_label.innerText = "Rotation: " + rotate_slider.value;
-            if(activeModel){
+            if (activeModel) {
                 activeModel.z_rotation = parseInt(rotate_slider.value);
                 glWin.setModel(model_label.innerText, activeModel);
             }
