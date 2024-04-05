@@ -144,6 +144,7 @@ export class UIController {
             const newColor = Color.fromHex(color);
 
             if(activeMarker){
+                console.log(activeMarker)
                 glWin.changeMarkerColor(mouseCtrl.currentModelKey, mouseCtrl.currentMarkerKey, newColor, false);
             } else{
                 glWin.changeModelColor(mouseCtrl.currentModelKey, newColor, false);
@@ -200,6 +201,8 @@ export class UIController {
             if (data.markerFocusKey) {
                 activeMarker = glWin.getMarker(data.markerFocusKey);
                 color_picker.value = activeMarker?.color.toHex() || "#000000";
+            } else{
+                activeMarker = undefined;
             }
         })
 

@@ -11,7 +11,6 @@ import {BufferType} from "../types/enum/buffer-type";
 import {Observable} from "../types/events/observer-pattern.ts";
 import {CanvasMouseEvent} from "../types/events/canvas-mouse-event";
 import {CanvasController} from "./canvas-controller";
-import { AnimationType } from "../types/enum/animate-type";
 import {Color} from "../types/color.ts";
 
 export class MouseController extends Observable<CanvasMouseEvent> {
@@ -186,12 +185,16 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             }
         }
 
-        const marker = this.glWin.getMarker(this.hoverMarkerKey)
-        if (marker != null) {
-            marker.setActive(true);
-            this.glWin.setMarker(this.hoverMarkerKey, marker);
+        if (this.hoverMarkerKey != this.currentMarkerKey) {
+            const marker = this.glWin.getMarker(this.hoverMarkerKey)
+            if(marker){
+                marker.setActive(true);
+                this.glWin.setMarker(this.hoverMarkerKey, marker);
+                this.setCurrentMarkerKey(this.hoverMarkerKey);
+            }
+        } else{
+            this.setCurrentMarkerKey("");
         }
-        this.setCurrentMarkerKey(this.hoverMarkerKey);
     }
 
     public async removeMarker() {
