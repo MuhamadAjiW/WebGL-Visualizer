@@ -32,13 +32,13 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         this.hoverMarkerKey = ""
     }
 
-    public setCurrentMarkerKey(key: string){
-        if(key != this.currentMarkerKey) this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE_MARKER, new CanvasMouseEvent(this.currentModelKey, key));
+    public setCurrentMarkerKey(key: string) {
+        if (key != this.currentMarkerKey) this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE_MARKER, new CanvasMouseEvent(this.currentModelKey, key));
         this.currentMarkerKey = key;
     }
 
-    public setCurrentModelKey(key: string){
-        if(key != this.currentModelKey) this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, new CanvasMouseEvent(key, this.currentMarkerKey));
+    public setCurrentModelKey(key: string) {
+        if (key != this.currentModelKey) this.emit(CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, new CanvasMouseEvent(key, this.currentMarkerKey));
         this.currentModelKey = key;
     }
 
@@ -106,7 +106,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
     public handleHover(event: MouseEvent) {
         if (this.clickBlocked) return
         const newMarkerKey = this.glWin.detectMarker(event.offsetX, event.offsetY);
-        
+
         if (newMarkerKey != this.hoverMarkerKey) {
             let marker = this.glWin.getMarker(this.hoverMarkerKey)
             if (marker != null && !marker.isActive()) {
@@ -115,7 +115,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             }
             this.hoverMarkerKey = newMarkerKey;
             if (this.hoverMarkerKey == null) return;
-            
+
             marker = this.glWin.getMarker(this.hoverMarkerKey)
             if (marker != null) {
                 marker.highlight();
@@ -123,6 +123,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             }
         }
     }
+
 
     public async setFocusModel(modelKey: string | null) {
         if (modelKey == null) {
@@ -132,11 +133,11 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             this.glWin.clearMarker();
             return;
         }
-        
+
         let model = this.glWin.getModel(modelKey);
-        
+
         if (model == null) throw Error("Invalid model requested");
-        
+
         this.setCurrentModelKey(modelKey);
         this.setCurrentMarkerKey("");
         this.hoverMarkerKey = ""
@@ -187,12 +188,12 @@ export class MouseController extends Observable<CanvasMouseEvent> {
 
         if (this.hoverMarkerKey != this.currentMarkerKey) {
             const marker = this.glWin.getMarker(this.hoverMarkerKey)
-            if(marker){
+            if (marker) {
                 marker.setActive(true);
                 this.glWin.setMarker(this.hoverMarkerKey, marker);
                 this.setCurrentMarkerKey(this.hoverMarkerKey);
             }
-        } else{
+        } else {
             this.setCurrentMarkerKey("");
         }
     }
@@ -220,7 +221,7 @@ export class MouseController extends Observable<CanvasMouseEvent> {
         }
     }
 
-    public async removeModel(){
+    public async removeModel() {
         this.glWin.removeModel(this.currentModelKey, false);
         await this.setFocusModel(null);
     }

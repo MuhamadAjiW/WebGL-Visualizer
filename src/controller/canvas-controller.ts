@@ -7,10 +7,9 @@ import {Config} from '../config';
 import {MarkerModel} from "../models/marker-model";
 import {WebGlController} from "./webgl-controller";
 import {AnimationType} from "../types/enum/animate-type";
-import { Observable } from "../types/events/observer-pattern";
-import { CanvasModelEvent } from "../types/events/canvas-model-event";
-import { SquareModel } from "../models/square-model";
-import { Color } from "../types/color";
+import {Observable} from "../types/events/observer-pattern";
+import {CanvasModelEvent} from "../types/events/canvas-model-event";
+import {Color} from "../types/color";
 
 export class CanvasController extends Observable<CanvasModelEvent> {
     public canvas: HTMLCanvasElement;
@@ -87,14 +86,13 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         await new Promise(resolve => {
             const checkBuffer = () => {
                 const model = buffer.get(key);
-                if (model !== undefined){
-                    if (!isMarker){
+                if (model !== undefined) {
+                    if (!isMarker) {
                         this.emit(CanvasModelEvent.EVENT_MODEL_ADD, new CanvasModelEvent(this.modelBuffer, model, key, model.type));
-                        if(replacedModel != null) this.emit(CanvasModelEvent.EVENT_MODEL_DELETE, new CanvasModelEvent(this.modelBuffer, replacedModel, replacedModelKey, replacedModel.type))
+                        if (replacedModel != null) this.emit(CanvasModelEvent.EVENT_MODEL_DELETE, new CanvasModelEvent(this.modelBuffer, replacedModel, replacedModelKey, replacedModel.type))
                     }
                     resolve(key);
-                }
-                else setTimeout(checkBuffer, 100);
+                } else setTimeout(checkBuffer, 100);
             };
             checkBuffer();
         });
@@ -130,16 +128,15 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         await new Promise(resolve => {
             const checkBuffer = () => {
                 const model = buffer.get(key);
-                if (model !== undefined){
+                if (model !== undefined) {
                     buffer.delete(key);
-                    buffer.set(modelKey,targetModel);
+                    buffer.set(modelKey, targetModel);
                     this.draw();
-                    if (!isMarker){
+                    if (!isMarker) {
                         this.emit(CanvasModelEvent.EVENT_MODEL_UPDATE, new CanvasModelEvent(this.modelBuffer, targetModel, modelKey, targetModel.type))
                     }
                     resolve(key);
-                }
-                else setTimeout(checkBuffer, 100);
+                } else setTimeout(checkBuffer, 100);
             };
             checkBuffer();
         });
@@ -177,13 +174,12 @@ export class CanvasController extends Observable<CanvasModelEvent> {
 
         await new Promise<void>(resolve => {
             const checkBuffer = () => {
-                if (buffer.get(modelKey) == undefined){
-                    if (!isMarker){
+                if (buffer.get(modelKey) == undefined) {
+                    if (!isMarker) {
                         this.emit(CanvasModelEvent.EVENT_MODEL_DELETE, new CanvasModelEvent(this.modelBuffer, null, modelKey, model.type));
                     }
                     resolve();
-                }
-                else setTimeout(checkBuffer, 100);
+                } else setTimeout(checkBuffer, 100);
             };
             checkBuffer();
         });
@@ -275,6 +271,8 @@ export class CanvasController extends Observable<CanvasModelEvent> {
             model.x_translation = val.x_translation;
             model.y_translation = val.y_translation;
             model.z_rotation = val.z_rotation;
+            model.width = val.width;
+            model.length = val.length;
             model.colorBuffer.len = val.colorBuffer.len;
             model.colorBuffer.data = new Float32Array(Object.values(val.colorBuffer.data));
             model.positionBuffer.len = val.positionBuffer.len;
@@ -357,8 +355,8 @@ export class CanvasController extends Observable<CanvasModelEvent> {
             const newMarker = marker.clone();
             newMarker.setColor(color);
 
-            this.updateModel(animate? AnimationType.COLOR : AnimationType.NULL, newModel, modelKey, false);
-            await this.updateModel(animate? AnimationType.COLOR : AnimationType.NULL, newMarker, markerKey, true);
+            this.updateModel(animate ? AnimationType.COLOR : AnimationType.NULL, newModel, modelKey, false);
+            await this.updateModel(animate ? AnimationType.COLOR : AnimationType.NULL, newMarker, markerKey, true);
         }
     }
 
@@ -377,10 +375,10 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         this.markerBuffer.forEach((value, key) => {
             const newMarker = value.clone();
             newMarker.setColor(color);
-            this.updateModel(animate? AnimationType.COLOR : AnimationType.NULL, newMarker, key, true);
+            this.updateModel(animate ? AnimationType.COLOR : AnimationType.NULL, newMarker, key, true);
         })
 
-        await this.updateModel(animate? AnimationType.COLOR : AnimationType.NULL, newModel, modelKey, false);
+        await this.updateModel(animate ? AnimationType.COLOR : AnimationType.NULL, newModel, modelKey, false);
     }
 
     private draw(): void {

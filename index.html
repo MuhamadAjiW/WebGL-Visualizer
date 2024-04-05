@@ -8,20 +8,24 @@
 <body style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center;">
 <div style="top: 0; left: 0; display: flex; flex-direction: column; width: 100%; height: fit-content; border: 1px solid black;">
     <div style="display: flex; justify-content: space-between; align-items: center; align-content: center">
-        <div style="display: flex; flex-direction: row; gap: 5px;">
+        <div style="display: grid; grid-template-columns: auto auto auto; gap: 5px;">
             <button id="line-button">Line</button>
             <button id="square-button">Square</button>
             <button id="rectangle-button">Rectangle</button>
             <button id="polygon-button">Polygon</button>
             <button id="test-button">Test</button>
-            <label>Model:</label>
-            <label id="model-label">none</label>
-            <label> ; </label>
-            <label>Marker:</label>
-            <label id="marker-label">none</label>
         </div>
-        <div style="display: flex; flex-direction: row; align-self: center">
-            <label style="align-self: center" for="model-dropdown">Choose a model:</label>
+        <div style="display: flex; flex-direction: column">
+            <div style="display: flex; flex-direction: row">
+                <label>Model:</label>
+                <label id="model-label">none</label>
+            </div>
+            <div style="display: flex; flex-direction: row">
+                <label>Marker:</label>
+                <label id="marker-label">none</label>
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: auto auto; align-self: center">
             <select style="align-self: center; margin-right: 20px" name="model" id="model-dropdown">
                 <option value="">Select Model</option>
                 <optgroup id="line-group" style="display: none" label="Line"></optgroup>
@@ -29,8 +33,8 @@
                 <optgroup id="rectangle-group" style="display: none;" label="Rectangle"></optgroup>
                 <optgroup id="polygon-group" style="display: none;" label="Polygon"></optgroup>
             </select>
-
-            <div id="slider-container" style="display: grid; grid-template-columns: 1fr 1fr; visibility: hidden;">
+            <div id="slider-container"
+                 style="display: grid; grid-template-columns: auto auto; visibility: hidden;">
                 <div>
                     <label id="x-slider-label" for="x-slider">X Slider: 0</label>
                     <input id="x-slider" type="range" min="-400" max="400" value="0" class="slider">
@@ -46,6 +50,17 @@
                 </div>
 
                 <input id="color-picker" type="color"/>
+
+                <div>
+                    <label id="width-slider-label" for="width-slider">Width Slider</label>
+                    <input id="width-slider" type="range" min="0" max="400" value="0" class="slider">
+                </div>
+
+                <div>
+                    <label id="length-slider-label" for="length-slider">Length Slider</label>
+                    <input id="length-slider" type="range" min="0" max="400" value="0" class="slider">
+                </div>
+
                 <button id="delete-model-button">Delete model</button>
                 <button id="delete-vertex-button">Delete vertex</button>
             </div>

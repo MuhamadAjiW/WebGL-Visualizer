@@ -3,14 +3,14 @@ import {CanvasMouseEvent} from "../types/events/canvas-mouse-event";
 import {EventListener} from "../types/events/observer-pattern.ts";
 import {CanvasController} from "./canvas-controller";
 import {MouseController} from "./mouse-controller";
-import { CanvasModelEvent } from "../types/events/canvas-model-event.ts";
-import { Color } from "../types/color.ts";
-import { BaseModel } from "../models/base-model.ts";
-import { MarkerModel } from "../models/marker-model.ts";
+import {CanvasModelEvent} from "../types/events/canvas-model-event.ts";
+import {Color} from "../types/color.ts";
+import {BaseModel} from "../models/base-model.ts";
+import {MarkerModel} from "../models/marker-model.ts";
 
 export class UIController {
     private eventListener: EventListener = new EventListener();
-    
+
     constructor(glWin: CanvasController, mouseCtrl: MouseController) {
         const line_btn = document.getElementById("line-button") as HTMLButtonElement
         const square_btn = document.getElementById("square-button") as HTMLButtonElement
@@ -28,9 +28,13 @@ export class UIController {
         const x_slider_label = document.getElementById("x-slider-label") as HTMLLabelElement
         const y_slider = document.getElementById("y-slider") as HTMLInputElement
         const y_slider_label = document.getElementById("y-slider-label") as HTMLLabelElement
+        const color_picker = document.getElementById("color-picker") as HTMLInputElement;
+        const width_slider = document.getElementById("width-slider") as HTMLInputElement;
+        const width_slider_label = document.getElementById("width-slider-label") as HTMLLabelElement;
+        const length_slider = document.getElementById("length-slider") as HTMLInputElement;
+        const length_slider_label = document.getElementById("length-slider-label") as HTMLLabelElement;
         const rotate_slider = document.getElementById("rotate-slider") as HTMLInputElement
         const rotate_slider_label = document.getElementById("rotate-slider-label") as HTMLLabelElement
-        const color_picker = document.getElementById("color-picker") as HTMLInputElement;
         const delete_vertex_button = document.getElementById("delete-vertex-button") as HTMLButtonElement;
         const delete_model_button = document.getElementById("delete-model-button") as HTMLButtonElement;
 
@@ -76,7 +80,7 @@ export class UIController {
                 return;
             } else {
                 const model = glWin.getModel(model_label.innerText);
-                if(!model) return;
+                if (!model) return;
 
                 x_slider.value = model.x_translation.toString();
                 x_slider_label.innerText = "X Slider: " + x_slider.value;
@@ -89,46 +93,103 @@ export class UIController {
 
                 slider_container.style.visibility = "visible";
 
-                if(model != activeModel) mouseCtrl.setFocusModel(model_label.innerText);
+                if (model.type == ModelType.LINE || model.type == ModelType.SQUARE) {
+                    width_slider_label.style.display = "none";
+                    width_slider.style.display = "none";
+
+                    length_slider_label.innerText = "Length Slider: " + model.length;
+                    length_slider.value = model.length.toString();
+
+                    model.width = -1;
+                    glWin.setModel(model_label.innerText, model);
+                } else if (model.type == ModelType.POLYGON) {
+                    width_slider_label.style.display = "none";
+                    width_slider.style.display = "none";
+
+                    length_slider_label.style.display = "none";
+                    length_slider.style.display = "none";
+                } else {
+                    width_slider.value = model.width.toString();
+                    width_slider_label.innerText = "Width Slider: " + width_slider.value;
+                    width_slider_label.style.display = "block";
+                    width_slider.style.display = "block";
+
+                    length_slider.value = model.length.toString();
+                    length_slider_label.innerText = "Length Slider: " + length_slider.value;
+                }
+
+                if (model != activeModel) mouseCtrl.setFocusModel(model_label.innerText);
                 activeModel = glWin.getModel(model_label.innerText);
             }
         }
 
         x_slider.oninput = () => {
             x_slider_label.innerText = "X Slider: " + x_slider.value;
-            if(activeModel){
+            if (activeModel) {
                 activeModel.x_translation = parseInt(x_slider.value);
                 glWin.setModel(model_label.innerText, activeModel);
             }
         }
-        
+
         x_slider.onmousedown = async () => {
             await glWin.clearMarker();
         }
-        
+
         x_slider.onmouseup = async () => {
             await mouseCtrl.restoreFocusModel();
         }
-        
+
         y_slider.oninput = () => {
             y_slider_label.innerText = "Y Slider: " + y_slider.value;
-            if(activeModel){
-                activeModel.y_translation = parseInt(y_slider.value);
+            if (activeModel) {
+                activeModel.y_translation = -parseInt(y_slider.value);
                 glWin.setModel(model_label.innerText, activeModel);
             }
         }
-        
+
         y_slider.onmousedown = async () => {
             await glWin.clearMarker();
         }
-        
+
         y_slider.onmouseup = async () => {
+            await mouseCtrl.restoreFocusModel();
+        }
+
+        width_slider.oninput = () => {
+            width_slider_label.innerText = "Width Slider " + width_slider.value;
+            if (activeModel) {
+                activeModel.width = parseInt(width_slider.value);
+                glWin.setModel(model_label.innerText, activeModel);
+            }
+        }
+
+        width_slider.onmousedown = async () => {
+            await glWin.clearMarker(true);
+        }
+
+        width_slider.onmouseup = async () => {
+            await mouseCtrl.restoreFocusModel();
+        }
+
+        length_slider.oninput = () => {
+            length_slider_label.innerText = "Length Slider " + length_slider.value;
+            if (activeModel) {
+                activeModel.length = parseInt(length_slider.value);
+                glWin.setModel(model_label.innerText, activeModel);
+            }
+        }
+
+        length_slider.onmousedown = async () => {
+            await glWin.clearMarker(true);
+        }
+
+        length_slider.onmouseup = async () => {
             await mouseCtrl.restoreFocusModel();
         }
 
         rotate_slider.oninput = () => {
             rotate_slider_label.innerText = "Rotate Slider " + rotate_slider.value;
-            if(activeModel){
+            if (activeModel) {
                 activeModel.z_rotation = parseInt(rotate_slider.value);
                 glWin.setModel(model_label.innerText, activeModel);
             }
@@ -146,11 +207,11 @@ export class UIController {
             const color = color_picker.value;
             const newColor = Color.fromHex(color);
 
-            if(activeMarker){
+            if (activeMarker) {
                 glWin.changeMarkerColor(mouseCtrl.currentModelKey, mouseCtrl.currentMarkerKey, newColor, false);
                 activeModel = glWin.getModel(mouseCtrl.currentModelKey);
                 activeMarker = glWin.getMarker(mouseCtrl.currentMarkerKey);
-            } else{
+            } else {
                 glWin.changeModelColor(mouseCtrl.currentModelKey, newColor, false);
                 activeModel = glWin.getModel(mouseCtrl.currentModelKey);
                 activeMarker = glWin.getMarker(mouseCtrl.currentMarkerKey);
@@ -215,18 +276,18 @@ export class UIController {
             if (data.markerFocusKey) {
                 activeMarker = glWin.getMarker(data.markerFocusKey);
                 color_picker.value = activeMarker?.color.toHex() || "#000000";
-            } else{
+            } else {
                 activeMarker = undefined;
             }
         })
 
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, (data) => {
             model_label.innerText = data.modelFocusKey ? data.modelFocusKey : "none";
-            
+
             const old_value = model_dropdown.value;
             const new_value = data.modelFocusKey ? data.modelFocusKey : "";
 
-            if(old_value != new_value){
+            if (old_value != new_value) {
                 activeModel = glWin.getModel(new_value);
                 model_dropdown.value = new_value;
                 model_dropdown.dispatchEvent(new Event("change"));
@@ -245,8 +306,9 @@ export class UIController {
         this.eventListener.listen<CanvasModelEvent>(CanvasModelEvent, CanvasModelEvent.EVENT_MODEL_DELETE, (data) => {
             const optGroup = document.getElementById(data.model?.type.valueOf() + "-group") as HTMLOptGroupElement;
             document.getElementById(data.modelKey)?.remove();
+            // set visibility to none
         })
-        
+
         glWin.clear();
     }
 }

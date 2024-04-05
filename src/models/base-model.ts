@@ -2,9 +2,9 @@ import {BufferInfo, Uniforms} from "../types/buffer-info";
 import {Coordinates} from "../types/coordinates";
 import {BufferType} from "../types/enum/buffer-type";
 import {ModelType} from "../types/enum/model-state";
-import { Matrix4, id4, m4 } from "../util/m4";
+import {id4, m4, Matrix4} from "../util/m4";
 
-export class BaseModel {   
+export class BaseModel {
     public type: ModelType = ModelType.NULL
     public positionBuffer: BufferInfo = new BufferInfo(0, []);
     public colorBuffer: BufferInfo = new BufferInfo(0, []);
@@ -12,6 +12,8 @@ export class BaseModel {
     public x_translation: number = 0;
     public y_translation: number = 0;
     public z_rotation: number = 0;
+    public width: number = 0;
+    public length: number = 0;
 
     public getBufferData(type: BufferType, transformed: boolean): Array<Coordinates> {
         let retval: Array<Coordinates> = []
@@ -73,18 +75,27 @@ export class BaseModel {
         );
     }
 
-    public generateUniform(){
-        
+    public generateUniform() {
+
         const center = this.getCenter();
         const matrixRotationT1 = m4.translation(-center.x, -center.y, 0);
         const matrixRotationT2 = m4.translation(center.x, center.y, 0);
         const matrixTranslationX = this.x_translation == 0 ? id4 : m4.translation(this.x_translation, 0, 0);
         const matrixTranslationY = this.y_translation == 0 ? id4 : m4.translation(0, this.y_translation, 0);
         const matrixRotation = m4.zRotation(this.z_rotation * Math.PI / (180));
-        
+        let widthScale: number
+        if (this.width == -1) {
+            widthScale = this.length != 0 ? this.length / 30 : 1
+        } else {
+            widthScale = this.width != 0 ? this.width / 30 : 1
+        }
+        const lengthScale: number = this.length != 0 ? this.length / 30 : 1
+        const matrixScale = m4.scaling(widthScale, lengthScale, 1);
+
         let u_matrix: Matrix4 = id4;
         u_matrix = m4.multiply(matrixRotationT1, u_matrix);
         u_matrix = m4.multiply(matrixRotation, u_matrix);
+        u_matrix = m4.multiply(matrixScale, u_matrix);
         u_matrix = m4.multiply(matrixRotationT2, u_matrix);
 
         u_matrix = m4.multiply(matrixTranslationX, u_matrix);
