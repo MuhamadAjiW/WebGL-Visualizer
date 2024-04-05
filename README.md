@@ -28,8 +28,15 @@ Kelompok SukaSamaKamu
 - Razzan Daksana Yoni / 13521087
 - Muhamad Aji Wibisono / 13521095
 
-# Cara menggunakan program
-1. Lakukan clone di repository ini
-2. Masuk ke direktori, jalankan
-    > npm run dev
-3. Buka localhost:5173 pada browser
+## Requirement
+- node version 20 or latest
+- npm version 10 or latest
+
+# How to Run the program
+1. Ensure the requirement are installed in your device
+2. Enter the directory and run on terminal
+   ```sh
+   npm install
+   npm run dev
+   ```
+5. Open localhost:5173 on your browser (chrome recommended)
