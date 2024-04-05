@@ -1,22 +1,6 @@
 type Vector3 = [number, number, number];
-export type Matrix4 = [
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number
-];
+type Vector4 = [number, number, number, number];
+export type Matrix4 = number[] | Float32Array;
 
 let MatType: new (size: number) => Float32Array | Array<number> = Float32Array;
 
@@ -73,6 +57,18 @@ export const m4 = {
         dst[13] = b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31;
         dst[14] = b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32;
         dst[15] = b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33;
+        return dst;
+    },
+    multiply4x1: function (m: Matrix4, v: Vector4, dst?: Vector4): Vector4 {
+        dst = dst || new MatType(4) as Vector4;
+        const v0 = v[0];
+        const v1 = v[1];
+        const v2 = v[2];
+        const v3 = v[3];
+        dst[0] = m[0] * v0 + m[4] * v1 + m[8] * v2 + m[12] * v3;
+        dst[1] = m[1] * v0 + m[5] * v1 + m[9] * v2 + m[13] * v3;
+        dst[2] = m[2] * v0 + m[6] * v1 + m[10] * v2 + m[14] * v3;
+        dst[3] = m[3] * v0 + m[7] * v1 + m[11] * v2 + m[15] * v3;
         return dst;
     },
 
