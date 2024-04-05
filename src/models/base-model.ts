@@ -52,6 +52,8 @@ export class BaseModel {
         retval.x_translation = this.x_translation;
         retval.y_translation = this.y_translation;
         retval.z_rotation = this.z_rotation;
+        retval.length = this.length;
+        retval.width = this.width;
         return retval;
     }
 
