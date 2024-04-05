@@ -59,6 +59,24 @@ export class LineModel extends BaseModel {
 
         return retval;
     };
+    public override generateUniform(): void {
+        const center = this.getCenter();
+        const lengthScale: number = 1 + this.length
+        const matrixRotationT1 = m4.translation(-center.x, -center.y, 0);
+        const matrixRotationT2 = m4.translation(center.x, center.y, 0);
+        const matrixTranslationX = m4.translation(this.x_translation, 0, 0);
+        const matrixTranslationY = m4.translation(0, this.y_translation, 0);
+        const matrixRotation = m4.zRotation(this.z_rotation);
+        const matrixScale = m4.scaling(lengthScale, lengthScale, 1);
+
+        let u_matrix = matrixRotationT1
+        u_matrix = m4.multiply(matrixScale, u_matrix);
+        u_matrix = m4.multiply(matrixRotation, u_matrix);
+        u_matrix = m4.multiply(matrixRotationT2, u_matrix);
+        u_matrix = m4.multiply(matrixTranslationX, u_matrix);
+        u_matrix = m4.multiply(matrixTranslationY, u_matrix);
+        this.uniforms.u_matrix = u_matrix;
+    }
     
     public override moveVertex(index: number, targetX: number, targetY: number) {
         // index = 2;
