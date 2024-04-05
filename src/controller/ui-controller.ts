@@ -29,6 +29,7 @@ export class UIController {
         const y_slider_label = document.getElementById("y-slider-label") as HTMLLabelElement
         const rotate_slider = document.getElementById("rotate-slider") as HTMLInputElement
         const rotate_slider_label = document.getElementById("rotate-slider-label") as HTMLLabelElement
+        const color_picker = document.getElementById("color-picker") as HTMLInputElement;
 
         let activeModel: BaseModel | undefined;
 
@@ -70,6 +71,8 @@ export class UIController {
                 slider_container.style.visibility = "hidden";
                 return;
             } else {
+                color_picker.style.visibility = "hidden";
+
                 activeModel = glWin.getModel(model_label.innerText);
                 if(!activeModel) return;
 
@@ -135,6 +138,12 @@ export class UIController {
             await mouseCtrl.restoreFocusModel();
         }
 
+        color_picker.oninput = () => {
+            const color = color_picker.value;
+            const newColor = Color.fromHex(color);
+            mouseCtrl.changeMarkerColor(newColor);
+        }
+
         clear_btn.onclick = () => {
             glWin.clear();
             file_input.files = null;
@@ -183,6 +192,10 @@ export class UIController {
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MARKER, (data) => {
             console.log(`Marker focus set to ${data.markerFocusKey}`);
             marker_label.innerText = data.markerFocusKey ? data.markerFocusKey : "none";
+            if (data.markerFocusKey) {
+                color_picker.style.visibility = "visible";
+                color_picker.value = glWin.getMarker(data.markerFocusKey)?.color.toHex() || "#000000";
+            }
         })
 
         this.eventListener.listen<CanvasMouseEvent>(CanvasMouseEvent, CanvasMouseEvent.EVENT_FOCUS_CHANGE_MODEL, (data) => {
