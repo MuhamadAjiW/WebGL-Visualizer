@@ -166,7 +166,9 @@ export class UIController {
 
                     length_slider_label.innerText = "Length Slider: " + model.length;
                     length_slider.value = model.length.toString();
-                    
+
+                    length_slider.style.display = "block";
+
                     glWin.setModel(model_label.innerText, model);
                 } else if (model.type == ModelType.POLYGON) {
                     width_slider_label.style.display = "none";
@@ -182,6 +184,7 @@ export class UIController {
 
                     length_slider.value = model.length.toString();
                     length_slider_label.innerText = "Length Slider: " + length_slider.value;
+                    length_slider.style.display = "block";
                 }
 
                 if (model != activeModel) mouseCtrl.setFocusModel(model_label.innerText);
