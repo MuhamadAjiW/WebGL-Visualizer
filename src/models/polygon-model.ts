@@ -76,4 +76,11 @@ export class PolygonModel extends BaseModel {
         this.positionBuffer = resPos;
         this.colorBuffer = resCol;
     }
+
+    moveVertex(index: number, targetX: number, targetY: number) {
+        let positionBuffer = this.positionBuffer.data
+        positionBuffer[4 * index] = targetX
+        positionBuffer[4 * index + 1] = targetY
+        this.positionBuffer.data = new Float32Array(positionBuffer) 
+    }
 }
