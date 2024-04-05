@@ -1,5 +1,5 @@
 type Vector3 = [number, number, number];
-type Vector4 = [number, number, number, number];
+type Vector4 = number[] | Float32Array;
 export type Matrix4 = number[] | Float32Array;
 
 let MatType: new (size: number) => Float32Array | Array<number> = Float32Array;
