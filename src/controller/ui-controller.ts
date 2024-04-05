@@ -31,6 +31,7 @@ export class UIController {
         const rotate_slider = document.getElementById("rotate-slider") as HTMLInputElement
         const rotate_slider_label = document.getElementById("rotate-slider-label") as HTMLLabelElement
         const color_picker = document.getElementById("color-picker") as HTMLInputElement;
+        const delete_vertex_button = document.getElementById("delete-vertex-button") as HTMLButtonElement;
 
         let activeModel: BaseModel | undefined;
         let activeMarker: MarkerModel | undefined;
@@ -150,6 +151,11 @@ export class UIController {
                 glWin.changeModelColor(mouseCtrl.currentModelKey, newColor, false);
             }
         }
+
+        delete_vertex_button.onclick = () => {
+            mouseCtrl.removeMarker();
+        }
+
 
         clear_btn.onclick = () => {
             glWin.clear();
