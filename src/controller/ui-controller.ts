@@ -166,8 +166,7 @@ export class UIController {
 
                     length_slider_label.innerText = "Length Slider: " + model.length;
                     length_slider.value = model.length.toString();
-
-                    model.width = -1;
+                    
                     glWin.setModel(model_label.innerText, model);
                 } else if (model.type == ModelType.POLYGON) {
                     width_slider_label.style.display = "none";
@@ -225,7 +224,7 @@ export class UIController {
         width_slider.oninput = () => {
             width_slider_label.innerText = "Width Slider " + width_slider.value;
             if (activeModel) {
-                activeModel.width = parseInt(width_slider.value);
+                activeModel.width = parseInt(width_slider.value) / 200;
                 glWin.setModel(model_label.innerText, activeModel);
             }
         }
@@ -241,7 +240,7 @@ export class UIController {
         length_slider.oninput = () => {
             length_slider_label.innerText = "Length Slider " + length_slider.value;
             if (activeModel) {
-                activeModel.length = parseInt(length_slider.value);
+                activeModel.length = parseInt(length_slider.value) / 200;
                 glWin.setModel(model_label.innerText, activeModel);
             }
         }
