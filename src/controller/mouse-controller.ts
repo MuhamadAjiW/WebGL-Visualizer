@@ -217,8 +217,12 @@ export class MouseController extends Observable<CanvasMouseEvent> {
             this.glWin.removeModel(this.currentModelKey, false);
 
             await this.setFocusModel(newcode);
-            this.setCurrentModelKey(newcode);
         }
+    }
+
+    public async removeModel(){
+        this.glWin.removeModel(this.currentModelKey, false);
+        await this.setFocusModel(null);
     }
 
     public async getModelBufferData() {

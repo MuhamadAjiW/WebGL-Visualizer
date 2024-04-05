@@ -60,6 +60,7 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         const key: string = modelKey === "" ? (isMarker ? "Marker" + this.markerMapKey++ : "Model" + this.modelMapKey++) : modelKey;
         if (start == null) {
             isMarker ? this.setMarker(key, model as MarkerModel) : this.setModel(key, model);
+            this.emit(CanvasModelEvent.EVENT_MODEL_ADD, new CanvasModelEvent(this.modelBuffer, model, key, model.type));
             return key;
         }
 
@@ -111,6 +112,7 @@ export class CanvasController extends Observable<CanvasModelEvent> {
         if (type == AnimationType.NULL) {
             buffer.set(modelKey, targetModel);
             this.draw();
+            this.emit(CanvasModelEvent.EVENT_MODEL_UPDATE, new CanvasModelEvent(this.modelBuffer, targetModel, modelKey, targetModel.type))
             return modelKey;
         }
 

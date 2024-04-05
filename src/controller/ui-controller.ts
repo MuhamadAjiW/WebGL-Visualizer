@@ -32,6 +32,7 @@ export class UIController {
         const rotate_slider_label = document.getElementById("rotate-slider-label") as HTMLLabelElement
         const color_picker = document.getElementById("color-picker") as HTMLInputElement;
         const delete_vertex_button = document.getElementById("delete-vertex-button") as HTMLButtonElement;
+        const delete_model_button = document.getElementById("delete-model-button") as HTMLButtonElement;
 
         let activeModel: BaseModel | undefined;
         let activeMarker: MarkerModel | undefined;
@@ -156,6 +157,9 @@ export class UIController {
             mouseCtrl.removeMarker();
         }
 
+        delete_model_button.onclick = () => {
+            mouseCtrl.removeModel();
+        }
 
         clear_btn.onclick = () => {
             glWin.clear();
@@ -237,9 +241,6 @@ export class UIController {
         this.eventListener.listen<CanvasModelEvent>(CanvasModelEvent, CanvasModelEvent.EVENT_MODEL_DELETE, (data) => {
             const optGroup = document.getElementById(data.model?.type.valueOf() + "-group") as HTMLOptGroupElement;
             document.getElementById(data.modelKey)?.remove();
-            if(optGroup.childElementCount == 0){
-                optGroup.style.display = "none";
-            }
         })
         
         glWin.clear();
