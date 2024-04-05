@@ -83,10 +83,10 @@ export class UIController {
                 if (!model) return;
 
                 x_slider.value = model.x_translation.toString();
-                x_slider_label.innerText = "X Slider: " + x_slider.value;
+                x_slider_label.innerText = "Model X: " + x_slider.value;
 
                 y_slider.value = model.y_translation.toString();
-                y_slider_label.innerText = "Y Slider: " + y_slider.value;
+                y_slider_label.innerText = "Model Y: " + y_slider.value;
 
                 rotate_slider.value = (model.z_rotation).toString();
                 rotate_slider_label.innerText = "Rotate Slider: " + rotate_slider.value;
@@ -124,7 +124,7 @@ export class UIController {
         }
 
         x_slider.oninput = () => {
-            x_slider_label.innerText = "X Slider: " + x_slider.value;
+            x_slider_label.innerText = "Model X: " + x_slider.value;
             if (activeModel) {
                 activeModel.x_translation = parseInt(x_slider.value);
                 glWin.setModel(model_label.innerText, activeModel);
@@ -140,7 +140,7 @@ export class UIController {
         }
 
         y_slider.oninput = () => {
-            y_slider_label.innerText = "Y Slider: " + y_slider.value;
+            y_slider_label.innerText = "Model Y: " + y_slider.value;
             if (activeModel) {
                 activeModel.y_translation = -parseInt(y_slider.value);
                 glWin.setModel(model_label.innerText, activeModel);
