@@ -95,8 +95,8 @@ export class BaseModel {
 
         let u_matrix: Matrix4 = id4;
         u_matrix = m4.multiply(matrixRotationT1, u_matrix);
-        u_matrix = m4.multiply(matrixRotation, u_matrix);
         u_matrix = m4.multiply(matrixScale, u_matrix);
+        u_matrix = m4.multiply(matrixRotation, u_matrix);
         u_matrix = m4.multiply(matrixRotationT2, u_matrix);
 
         u_matrix = m4.multiply(matrixTranslationX, u_matrix);
