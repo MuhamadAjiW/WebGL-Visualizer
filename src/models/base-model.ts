@@ -84,8 +84,8 @@ export class BaseModel {
         const matrixRotationT2 = m4.translation(center.x, center.y, 0);
         const matrixTranslationX = this.x_translation == 0 ? id4 : m4.translation(this.x_translation, 0, 0);
         const matrixTranslationY = this.y_translation == 0 ? id4 : m4.translation(0, this.y_translation, 0);
-        const matrixRotation = m4.zRotation(this.z_rotation);
-        
+        const matrixRotation = m4.zRotation(this.z_rotation * Math.PI / 180);
+
         let widthScale: number
         if (this.width == -1) {
             widthScale = this.length != 0 ? 1 + (this.length / 30) : 1
@@ -100,7 +100,7 @@ export class BaseModel {
         u_matrix = m4.multiply(matrixScale, u_matrix);
         u_matrix = m4.multiply(matrixRotation, u_matrix);
         u_matrix = m4.multiply(matrixRotationT2, u_matrix);
-
+        
         u_matrix = m4.multiply(matrixTranslationX, u_matrix);
         u_matrix = m4.multiply(matrixTranslationY, u_matrix);
 
